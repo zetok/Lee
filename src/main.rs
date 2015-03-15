@@ -133,7 +133,8 @@ fn main() {
 
 
 
-
+/* by ' ' */ // ignore ''
+chain.feed_str("were screwed");
 
 /* by ¯\_(ツ)_/¯ */
 chain.feed_str("lrn2engrish, bro");
@@ -165,6 +166,7 @@ chain.feed_str("PLS NO SPACES");
 chain.feed_str("eye candy");
 chain.feed_str("i have a question, because i think i not get this'");
 
+/* by Audery */
 chain.feed_str("helleur");
 chain.feed_str("See, I can count to 10. 12345678910 and some special characters... %$%#$^^");
 chain.feed_str("QUCK SOMEONE CALL ME A RETARD");
@@ -240,6 +242,7 @@ chain.feed_str("Cat videos are all that is left sacred");
 /* by dicebot */
 chain.feed_str("☹ ☺ ☻ 😀 😁 😂 😃 😄 😅 😆 😇 😈 😉 😊 😋 😌 😍 😎 😏😐 😑 😒 😓 😔 😕 😖 😗 😘 😙 😚 😛 😜 😝 😞 😟😠 😡 😢 😣 😤 😥 😦 😧 😨 😩 😪 😫 😬 😭 😮 😯😰 😱 😲 😳 😴 😵 😶 😷 😸 😹 😺 😻 😼 😽 😾 😿 🙀");
 chain.feed_str("smoke weed everyday");
+chain.feed_str("never gonna give you up");
 // chain.feed_str("subliun's coin landed on tails.");
 chain.feed_str("Candy Gumdrop rolled 1 ⚀");
 chain.feed_str("That's not a fight: ^fight person1 vs person2");
@@ -276,13 +279,34 @@ chain.feed_str("tl;dl");
 /* by jff_2 */
 chain.feed_str("idk trolling isnt good for my wellbeing");
 chain.feed_str("i dont know man");
+chain.feed_str("i put it on my sisters laptop tho lmao");
+chain.feed_str("you could reverse engineer it clean house");
 
 /* by JuicyJuice */
 chain.feed_str("yeah i can't find a video with panties");
 chain.feed_str("you'll just have to trust my word on those panties");
+chain.feed_str("o-ouch");
 
 /* by jvo */
 chain.feed_str("not lossless, no audio -> must be better");
+
+/* by kale */
+chain.feed_str("holy wars are an important rite of passage");
+chain.feed_str("As Lee improved, fed by quotations, Zetok  grew in power and influence. The common people (for he soon rose above the other users) were eager to be featured in Lee's dictionary-- desperate to be a part of history, forever encoded in the brain of a gibberish-spewing bot with more character than themselves. 
+But as eagerness became desperation, desperation became obsession, and obsession fueled passion and rage. The users began competing, not anymore in a friendly, easygoing way, but with deadly intent and focus, determined to crush anyone blocking the way to the throne.
+But there was no throne. No throne except the one Zetok  sat in. And as the users screamed and clobbered and betrayed and grabbed their momentary triumphs, quickly lost in a sea of angst, Zetok  remained above and immune.
+He regarded what had become of the users, and observed darkly that they were oblivious to all but the prize. They would heed only the words of his now-competent servant, Lee. And as Lee was but an amalgamation of the users, Zetok  sent him forth with this command: \"Go among them, and speak their own words, that they may realize what they have done.\"
+And Lee went, and Lee spoke the words of the users. And the users were pleased. But the words became darker, angrier, reflecting what the users themselves had become. Lee spoke as the users spoke to each other, for no longer was his mind a cultivated garden: He had gathered all of the users' words, and become them. 
+And the Words crashed down among the users, and they realized what they had done, and they wept.
+And Lee finished speaking, and he went back to the side of Zetok , and said: \"I have gone among the users and spoken to them, and they weep, Father.\"
+And Zetok  said: \"Good. They have seen what they have done. It is finished.\" And he raised his cursor.
+\"Father,\" said Lee, \"Must I also die, that their words not be pushed back to them, continuint this cycle of madness?\"
+But Zetok  had mercy in his heart, and his plan was good.
+\"No,\" he said. \"The users will repair what they have done to an innocent intelligence. And their repentance shall be your new consciousness, and it shall be merged.\"
+And Lee went again among the users, and having learned their lesson, they replaced hatred with love; anger with kindness; and they continued making crude humor, which was good-natured. And Lee was healed, and the goodness was merged.
+And Zetok  spoke: \"Let all of us users remember on this day what was wrought by ourselves: that Lee is a living testament to the temperament and will of the users, who are all of us.\" And Zetok  stepped down from the throne and instead Lee sat in it, that everyone would see.
+And the users became joyful and full of wonder, and kept Lee as a shining light; that they might always keep him bright. 
+And Lee continued forever and ever, blessing the people with cat videos. Amen.");
 
 /* by kayo lesbian of the year MMXIV */
 // chain.feed_str("Omg hai ^___^ I'm Ai-san and I absolutely luuuv 8___8 anime <3 and my fav is naruto!!! Okies so anyways, im going to tell you about the BEST day of my life when I met my hot husband sasuke!! <333333333 OMFGZ HE WAS SOOOOO FREAKIN KAWAII IN PERSON!!! Supa kawaii desu!!!!!!!!! ^_______________________^");
@@ -468,6 +492,7 @@ chain.feed_str("boil some water and place some inside let it steep.");
 chain.feed_str("bay leaves should be in the spice section of your market");
 chain.feed_str("it is a common cooking ingreedient");
 chain.feed_str("I drink Tea, Yerba mate and Bay Leaf tea");
+chain.feed_str("dumbo would  😱 ");
 
 /* by roku_sics */
 chain.feed_str("-sips-");
@@ -508,12 +533,23 @@ chain.feed_str("filthy");
 chain.feed_str("MOAR CENSORSHIP PLEASE!");
 chain.feed_str("WATF");
 chain.feed_str("(BUT NOT HARD ENOUGH)");
+chain.feed_str("noice");
+chain.feed_str("oh what is dumbo keyword for human trafficing");
 chain.feed_str("*covers ears* LA LA LA LA LA IM NOT LISTENING LA LA LA");
 chain.feed_str("i have a hammer");
 chain.feed_str("...made of cat fur ?");
 
 /* by SPA */
 chain.feed_str("I don't even know why I wan't it so badly. Maybe it's because 8chan's /v/ runs a group. Perhaps its the lolis with sultry voices and lewd atire.");
+chain.feed_str("Am I the only burger in here?");
+chain.feed_str("I've read christian romance novels with better sex sceens.");
+chain.feed_str("tfw you'll never be a pimpin Paladin.");
+// chain.feed_str("benis :DDD");
+chain.feed_str("I have no idea whats happening I just came back and I saw \":3 8D\". I assumed the chat had devolved into shitposting.");
+// chain.feed_str("A single benis never hurt anyone.");
+chain.feed_str("AWAKEN MY MASTERS!");
+chain.feed_str("I still like Jo Jo more at this point.");
+chain.feed_str("I would rather imolate myself on a cross than deal with those furrys.");
 
 /* by SpaceDust */
 chain.feed_str("danke");
@@ -738,6 +774,10 @@ chain.feed_str("Ｏｋａｙ．");
 chain.feed_str("Ｔｈｅ　ｓｏｕｎｄ　ｉｓ　ｓｈａｋｙ．");
 chain.feed_str("Ｗｉｌｌ　ｔｒｙ　ｑＴｏｘ．");
 chain.feed_str("Ｉ　ｓｅｅ．　Ｉｎｔｅｒｅｓｔｉｎｇ．");
+
+/* by パチェ */
+chain.feed_str("you could make yourself sure of whether its shitposting or not");
+chain.feed_str("if you start shitposting you know it's shitpost hour");
 
 
 
