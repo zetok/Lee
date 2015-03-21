@@ -390,6 +390,7 @@ chain.feed_str("that thing in the topic looks like katakana 'e' with a bent stro
 chain.feed_str(">beautiful");
 chain.feed_str(">tfw no cute pillow to cuddle with");
 chain.feed_str("ew");
+chain.feed_str("blushing");
 
 /* by Milan Mensch */
 chain.feed_str("hmm...what do you use? terminal?");
@@ -465,6 +466,7 @@ chain.feed_str("thats the real engineering tradeoff in tox");
 /* by rachel fish */
 chain.feed_str("this is hax");
 chain.feed_str("JEEZ");
+chain.feed_str("BLOOP");
 
 /* by redsteakraw */
 chain.feed_str("stupid idea");
@@ -851,9 +853,6 @@ chain.feed_str("All You Need Is Kill");
 
 
 
-/* by … (to be filled) */
-chain.feed_str("based otakugrey");
-
 chain.feed_str("heat?");
 
 chain.feed_str("/exec cat /dev/urandom | padsp tee /dev/audio > /dev/null");
@@ -876,8 +875,11 @@ chain.feed_str("#shittoxsays");
 /* links to ~cats */
 chain.feed_str("https://www.youtube.com/watch?v=Uqa6o7OATQU :3"); // Кот греется - The cat heats
 chain.feed_str("https://www.youtube.com/watch?v=aP3gzee1cps :3"); // Cat gets caught barking by a human and resumes meowing
-chain.feed_str("https://i.imgur.com/tIUSFVa.jpg");
-
+chain.feed_str("https://www.youtube.com/watch?v=0-Lvv1f5Qu4 :3"); // Kitty history :3
+chain.feed_str("https://i.imgur.com/tIUSFVa.jpg :3");
+chain.feed_str("https://i.imgur.com/j0fcTMf.jpg :3");
+chain.feed_str("https://i.imgur.com/RCzS5n6.jpg :3");
+chain.feed_str("https://i.imgur.com/gBkBJxy.jpg :3");
 
 
 
