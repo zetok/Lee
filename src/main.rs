@@ -414,6 +414,26 @@ chain.feed_str("I know I'm not getting any.");
 chain.feed_str("Sloths don't have big dicks. That is kind of a deal breaker.");
 chain.feed_str("That was very hurtful.");
 
+/* by muchweb */
+chain.feed_str("░░░░░░░░░▄▄▄▄▄
+░░░░░░░░▀▀▀██████▄▄▄
+░░░░░░▄▄▄▄▄░░█████████▄
+░░░░░▀▀▀▀█████▌░▀▐▄░▀▐█
+░░░▀▀█████▄▄░▀██████▄██
+░░░▀▄▄▄▄▄░░▀▀█▄▀█════█▀
+░░░░░░░░▀▀▀▄░░▀▀███░▀░░░░░░▄▄
+░░░░░▄███▀▀██▄████████▄░▄▀▀▀██▌
+░░░██▀▄▄▄██▀▄███▀░▀▀████░░░░░▀█▄
+▄▀▀▀▄██▄▀▀▌████▒▒▒▒▒▒███░░░░▌▄▄▀
+▌░░░░▐▀████▐███▒▒▒▒▒▐██▌
+▀▄░░▄▀░░░▀▀████▒▒▒▒▄██▀
+░░▀▀░░░░░░▀▀█████████▀
+░░░░░░░░▄▄██▀██████▀█
+░░░░░░▄██▀░░░░░▀▀▀░░█
+░░░░░▄█░░░░░░░░░░░░░▐▌
+░▄▄▄▄█▌░░░░░░░░░░░░░░▀█▄▄▄▄▀▀▄
+▌░░░░░▐░░░░░░░░░░░░░░░░▀▀▄▄▄▀");
+
 /* by nalcus */
 chain.feed_str("angrylennart.ogg");
 chain.feed_str("don't hack me bro");
@@ -434,6 +454,9 @@ chain.feed_str(">`make gf` will never compile");
 
 /* by NickTestowy */
 chain.feed_str("OK, dzięki.");
+
+/* by - ̗̀nothing  ̖́- */
+chain.feed_str("someone's jelly");
 
 /* by Peasant */
 chain.feed_str("Things apparently are coming full circle");
@@ -664,6 +687,10 @@ chain.feed_str("Rude.");
 chain.feed_str("Ignore them, they're jealous.");
 chain.feed_str("OGRE");
 
+/* by tccki */
+chain.feed_str("whats with the group title");
+chain.feed_str("well i'll stick around");
+
 /* by Tuser */
 chain.feed_str("impersonation");
 chain.feed_str("probably don't scale");
@@ -671,6 +698,9 @@ chain.feed_str("cause I'm against wearing fur");
 
 /* by Tux [Home] */
 chain.feed_str(">Asking for botnet");
+
+/* by uguu */
+chain.feed_str("I hope not");
 
 /* by Utox User */
 // chain.feed_str("+");
@@ -876,6 +906,7 @@ chain.feed_str("#shittoxsays");
 chain.feed_str("https://www.youtube.com/watch?v=Uqa6o7OATQU :3"); // Кот греется - The cat heats
 chain.feed_str("https://www.youtube.com/watch?v=aP3gzee1cps :3"); // Cat gets caught barking by a human and resumes meowing
 chain.feed_str("https://www.youtube.com/watch?v=0-Lvv1f5Qu4 :3"); // Kitty history :3
+chain.feed_str("https://www.youtube.com/watch?v=2YKP6FiiJro :3"); // BUB SOUNDS
 chain.feed_str("https://i.imgur.com/tIUSFVa.jpg :3");
 chain.feed_str("https://i.imgur.com/j0fcTMf.jpg :3");
 chain.feed_str("https://i.imgur.com/RCzS5n6.jpg :3");
