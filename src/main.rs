@@ -458,6 +458,9 @@ chain.feed_str("OK, dzięki.");
 /* by - ̗̀nothing  ̖́- */
 chain.feed_str("someone's jelly");
 
+/* by Null */
+chain.feed_str("doot doot");
+
 /* by Peasant */
 chain.feed_str("Things apparently are coming full circle");
 
@@ -485,6 +488,10 @@ chain.feed_str("I don't trust him");
 chain.feed_str("I have evidence that I need to compile before releasing");
 chain.feed_str("anyway I'm just fucking with you guys");
 chain.feed_str("thats the real engineering tradeoff in tox");
+
+/* by Purple Duke~ */
+chain.feed_str("So you created a monster... and now you can't get rid of it. xD");
+chain.feed_str("nini~");
 
 /* by rachel fish */
 chain.feed_str("this is hax");
@@ -662,7 +669,7 @@ chain.feed_str("What a jerk");
 chain.feed_str("ohh, duh.");
 chain.feed_str("don't you mock my lack of common sense");
 
-/* by Thomas@home */
+/* by Thomas@home / Tuōmǎsī@家 */
 chain.feed_str("maybe you also need `syntax on' and restart your vim");
 chain.feed_str("a habbo gets his bear");
 chain.feed_str("a well-deserved bear");
@@ -670,6 +677,7 @@ chain.feed_str("(╯° °）╯︵ <(_-¯-_)>");
 chain.feed_str("too bad there's no builtin Bach program");
 chain.feed_str(">bach -c 'echo 1'
 GNU Bach: Playing work No. 1 with echo");
+chain.feed_str("rood");
 
 /* by Timo */
 chain.feed_str("so does the saund part");
@@ -698,6 +706,9 @@ chain.feed_str("cause I'm against wearing fur");
 
 /* by Tux [Home] */
 chain.feed_str(">Asking for botnet");
+
+/* by tx11 */
+chain.feed_str("ching chong ping pong");
 
 /* by uguu */
 chain.feed_str("I hope not");
