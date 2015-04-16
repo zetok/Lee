@@ -193,6 +193,9 @@ chain.feed_str("That might be what I need then");
 /* by Carlos Danger */
 chain.feed_str("love the cats is differnet than liking cats ... perv");
 
+/* by China */
+chain.feed_str("i chinese");
+
 /* by Clank */
 /* context
 [10:16:28] Aleksey Lobanov
@@ -258,6 +261,9 @@ chain.feed_str("it was such a sad experience");
 
 /* by Epictek */
 chain.feed_str("yeah not the smartest idea");
+
+/* by Feroce */
+chain.feed_str("V, your prospective drinking buddy is an automaton.");
 
 /* by gitgud */
 chain.feed_str("It was awful.");
@@ -391,6 +397,7 @@ chain.feed_str(">beautiful");
 chain.feed_str(">tfw no cute pillow to cuddle with");
 chain.feed_str("ew");
 chain.feed_str("blushing");
+chain.feed_str("<(^美^)>");
 
 /* by Milan Mensch */
 chain.feed_str("hmm...what do you use? terminal?");
@@ -492,11 +499,16 @@ chain.feed_str("thats the real engineering tradeoff in tox");
 /* by Purple Duke~ */
 chain.feed_str("So you created a monster... and now you can't get rid of it. xD");
 chain.feed_str("nini~");
+chain.feed_str("gewd evening~");
 
 /* by rachel fish */
 chain.feed_str("this is hax");
 chain.feed_str("JEEZ");
 chain.feed_str("BLOOP");
+
+/* by ray-fine */
+chain.feed_str("😁 ");
+chain.feed_str("she's missing you~~~~");
 
 /* by redsteakraw */
 chain.feed_str("stupid idea");
@@ -553,7 +565,7 @@ chain.feed_str("I thought I dominated english until encountering William James S
 /* by sed */
 chain.feed_str("ahh");
 
-/* by skull/{☯}S☠ǚll{☣}  */
+/* by skull / {☯}S☠ǚll{☣}  */
 chain.feed_str("no echo here~here~here~here~");
 chain.feed_str("where's our Indian DJ?");
 chain.feed_str("boom.");
@@ -571,6 +583,13 @@ chain.feed_str("oh what is dumbo keyword for human trafficing");
 chain.feed_str("*covers ears* LA LA LA LA LA IM NOT LISTENING LA LA LA");
 chain.feed_str("i have a hammer");
 chain.feed_str("...made of cat fur ?");
+chain.feed_str("doesnt.");
+//chain.feed_str("subliun uses a +4 enchanted API");
+chain.feed_str("does 6 fire damage against utox users");
+
+/* by Some Donkus */
+chain.feed_str("IT WASN'T A BEAR");
+chain.feed_str("IT WAS A REPTILLIAN");
 
 /* by SPA */
 chain.feed_str("I don't even know why I wan't it so badly. Maybe it's because 8chan's /v/ runs a group. Perhaps its the lolis with sultry voices and lewd atire.");
@@ -678,6 +697,12 @@ chain.feed_str("too bad there's no builtin Bach program");
 chain.feed_str(">bach -c 'echo 1'
 GNU Bach: Playing work No. 1 with echo");
 chain.feed_str("rood");
+chain.feed_str("<(^火^)>");
+chain.feed_str("<(^人^)>");
+chain.feed_str("<（广_广）>");
+chain.feed_str("(一˙___˙一)");
+chain.feed_str("=(一ˇ一)=");
+chain.feed_str("cat upside down");
 
 /* by Timo */
 chain.feed_str("so does the saund part");
@@ -720,6 +745,28 @@ chain.feed_str("I hope not");
 
 /* by V */
 chain.feed_str("I like it.");
+//chain.feed_str("hoi");
+chain.feed_str("so it's time for another ten hours of drinking");
+chain.feed_str("dude I never know what you're saying");
+chain.feed_str("whose bear was lost?");
+chain.feed_str("bro I hope by tonight I'm feeling it enough to understand what you're on about");
+chain.feed_str("see you on the other side, gents");
+chain.feed_str("this sangria is pretty damn tasty");
+chain.feed_str("gonna remove airship");
+chain.feed_str("so I won't respond for a bit");
+chain.feed_str("I'm a skinwalker");
+chain.feed_str("I have coins");
+chain.feed_str("but I'll psot an address and you can send me dragon dildos all fucking day");
+chain.feed_str("**don't think I won't put them to use**");
+chain.feed_str("I puce");
+//chain.feed_str("come at me");
+chain.feed_str("I CHARTREUCE");
+chain.feed_str("I BEE PURPLE");
+chain.feed_str("it is rapey");
+chain.feed_str("bruh");
+chain.feed_str("I want to drink with you in real life");
+chain.feed_str("I can deal with it");
+chain.feed_str("and I defy you to find anything more cyber");
 
  /* by voxel */
 chain.feed_str("You are not likely to be eaten by a Grue in today's world.");
@@ -746,7 +793,7 @@ chain.feed_str(">tfw no grues");
 
 
 
-/* by whoever */
+/* by whoever / æ */
 chain.feed_str("-_-");
 chain.feed_str("please die");
 chain.feed_str("Are you sure that everything is controlled?");
@@ -765,6 +812,7 @@ chain.feed_str("What?\\");
 // chain.feed_str("griffondor: It's dangerous to go alone! Take this: http://a.pomf.se/qhxeav.PDF"); /* original */
 chain.feed_str("It's dangerous to go alone! Take this: https://a.pomf.se/qhxeav.PDF");
 chain.feed_str("why ☺ looks like http://a.pomf.se/iuqkek.jpg ?");
+chain.feed_str("Лол.");
 
 /* by Z5 */
 chain.feed_str("You creep.");
@@ -922,6 +970,7 @@ chain.feed_str("https://i.imgur.com/tIUSFVa.jpg :3");
 chain.feed_str("https://i.imgur.com/j0fcTMf.jpg :3");
 chain.feed_str("https://i.imgur.com/RCzS5n6.jpg :3");
 chain.feed_str("https://i.imgur.com/gBkBJxy.jpg :3");
+chain.feed_str("https://i.imgur.com/3GcFdCu.jpg :3");
 
 
 
@@ -1037,7 +1086,6 @@ chain.feed_str("Although almost never used, GNU of GNU/GNU (The kernel, not the 
 chain.feed_str("You need a pair for maximum satisfaction.");
 chain.feed_str("“ He's dead, Jim.”");
 // chain.feed_str("One day God was spying on Adam and Eve, when he noticed Cain was out for a stroll.");
-chain.feed_str("Fecal E.Coli is the flagship product of the legendary Coca Coli Company.");
 chain.feed_str("Clearly this course of action is futile and should not be undertaken by any means.");
 chain.feed_str("It smells kind of like chocolate bars and pine trees.");
 
