@@ -1,61 +1,20 @@
 [root]
-name = "lee"
-version = "0.0.1"
+name = "groupchat"
+version = "0.0.0"
 dependencies = [
- "markov 0.0.19 (git+https://github.com/aatxe/markov.git)",
- "rstox 0.0.1 (git+https://github.com/suhr/rstox.git?branch=audio)",
- "time 0.1.16 (registry+https://github.com/rust-lang/crates.io-index)",
+ "rstox 0.0.1 (git+https://github.com/suhr/rstox.git?branch=new-api)",
 ]
-
-[[package]]
-name = "gcc"
-version = "0.1.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "libc"
-version = "0.1.2"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "log"
-version = "0.2.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "markov"
-version = "0.0.19"
-source = "git+https://github.com/aatxe/markov.git#da46abe5297af8cd24be7a51f9d59f4ee144b6ef"
-dependencies = [
- "rand 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "rustc-serialize 0.2.12 (registry+https://github.com/rust-lang/crates.io-index)",
-]
-
-[[package]]
-name = "rand"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-dependencies = [
- "libc 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
- "log 0.2.3 (registry+https://github.com/rust-lang/crates.io-index)",
-]
 
 [[package]]
 name = "rstox"
 version = "0.0.1"
-source = "git+https://github.com/suhr/rstox.git?branch=audio#9e2632b51041e3f1956333323278d8a70bda80e8"
-
-[[package]]
-name = "rustc-serialize"
-version = "0.2.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-
-[[package]]
-name = "time"
-version = "0.1.16"
-source = "registry+https://github.com/rust-lang/crates.io-index"
+source = "git+https://github.com/suhr/rstox.git?branch=new-api#ab645038ef387893ce670a1dd220deb294872425"
 dependencies = [
- "gcc 0.1.7 (registry+https://github.com/rust-lang/crates.io-index)",
- "libc 0.1.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 

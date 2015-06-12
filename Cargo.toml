@@ -1,17 +1,11 @@
 [package]
-
 name = "lee"
-version = "0.0.1"
-authors = ["subliun <subliunisdev@gmail.com>"]
+version = "0.0.0"
+authors = ["zetok"]
+
+
 
 [dependencies.rstox]
 
 git = "https://github.com/suhr/rstox.git"
-branch = "audio"
-
-[dependencies.markov]
-
-git = "https://github.com/aatxe/markov.git"
-
-[dependencies]
-time = "*"
+branch="new-api"
