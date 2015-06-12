@@ -1,5 +1,5 @@
 [root]
-name = "groupchat"
+name = "lee"
 version = "0.0.0"
 dependencies = [
  "rstox 0.0.1 (git+https://github.com/suhr/rstox.git?branch=new-api)",
