@@ -23,12 +23,9 @@ extern crate rstox;
 
 use rstox::core::*;
 
-// to bootstrap
 mod bootstrap;
 
-/*
-    Bot name.
-*/
+
 // TODO: load it from config file, if not available, then use default one
 //         * perhaps it could be made of some random chars generated
 //           at runtime?
@@ -43,18 +40,9 @@ fn main() {
     */
     let fake_names = &["Zetok", "zetok", "Layer"];
 
-    /*
-        Initialize tox instance (or whatever it's called)
-        // TODO: fix comment ↑, so that proper wording would be used
-    */
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
 
-
-    /*
-        Set bot name.
-    */
     tox.set_name(BOT_NAME).unwrap();
-
 
     /*
         Boostrapping process
@@ -64,7 +52,6 @@ fn main() {
         // TODO: actually make it possible to use supplied list
     */
     bootstrap::bootstrap_hardcoded(&mut tox);
-
 
     println!("{}", tox.get_address());
 
