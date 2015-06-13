@@ -29,7 +29,7 @@ use rstox::core::*;
     file, it only will have 4 hardcoded nodes, which are known to be working
     at the time. Should contain both IPv4 and IPv6 nodes.
 
-    Given those constrains, bootstrap nodes were selected due to my own
+    Given those constraints, bootstrap nodes were selected due to my own
     personal opinion, which is affected by multitude of factors.
 
     [1] https://github.com/irungentoo/Tox_Client_Guidelines/blob/master/Required/Bootstrapping.md
