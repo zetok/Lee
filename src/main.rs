@@ -38,6 +38,8 @@ fn main() {
         use my nick.
         Also defend bot.
     */
+    // TODO: need to switch to PK-based impostor detection, since apparently
+    //       some people can get '\0' as their name :3
     let fake_names = &["Zetok", "zetok", "Layer"];
 
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
@@ -49,7 +51,11 @@ fn main() {
         During bootstrapping one should query random bootstrap nodes from a
         supplied list; in case where there is no list, rely back on hardcoded
         bootstrap nodes.
-        // TODO: actually make it possible to use supplied list
+        // TODO: actually make it possible to use supplied list; location of a
+        //       list should be determined by value supplied in config file;
+        //       in case of absence of config file, working dir should be
+        //       tried for presence of file named `bootstrap.txt`, only if it
+        //       is missing fall back on hardcoded nodes
     */
     bootstrap::bootstrap_hardcoded(&mut tox);
 
@@ -97,15 +103,9 @@ fn main() {
                     };
                     drop(tox.group_message_send(gnum, &msg));
                 },
-                            
-                /*GroupTitle(gnum, _, _) => {
-                    let _ = tox.group_set_title(gnum, "#tox-real-ontopic ");
-                },*/
                 ev => { println!("Tox event: {:?}", ev); },
             }
         }
-        drop(tox.group_set_title(0, "░▒▓█ #tox-real-ontopic | No. █▓▒░"));
-
         tox.wait();
     }
 }
