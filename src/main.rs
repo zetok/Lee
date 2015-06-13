@@ -32,6 +32,35 @@ mod bootstrap;
 static BOT_NAME: &'static str = "Layer\0";
 
 
+/*
+    Function that deals with incoming friend requests
+*/
+fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
+    drop(tox.add_friend_norequest(&fpk));
+    println!("Friend {} with friend message {:?} was added.", fpk, msg);
+}
+
+
+/*
+    Function that deals with incoming invites to groupchats
+*/
+fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) {
+    /*
+        Since rstox currently supports only text groupchats, handle only them,
+        and drop other invites.
+    */
+    match kind {
+        GroupchatType::Text => {
+            drop(tox.join_groupchat(fid, &data));
+            println!("Accepted invite to text groupchat by {}.", fid);
+        },
+        GroupchatType::Av => {
+            println!("Declined invite to audio groupchat by {}.", fid);
+        },
+    }
+}
+
+
 fn main() {
     /*
         Defend my honour. Needed to compare whether someone is not trying to
@@ -44,7 +73,7 @@ fn main() {
 
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
 
-    tox.set_name(BOT_NAME).unwrap();
+    drop(tox.set_name(BOT_NAME));
 
     /*
         Boostrapping process
@@ -64,17 +93,14 @@ fn main() {
     loop {
         for ev in tox.iter() {
             match ev {
-                FriendRequest(cid, _) => {
-                    tox.add_friend_norequest(&cid).unwrap();
+                FriendRequest(fpk, msg) => {
+                    on_friend_request(&mut tox, fpk, msg);
                 },
+
                 GroupInvite(fid, kind, data) => {
-                    match kind {
-                        GroupchatType::Text => {
-                            tox.join_groupchat(fid, &data).unwrap();
-                        },
-                        _ => {},
-                    }
+                    on_group_invite(&mut tox, fid, kind, data);
                 },
+
                 GroupMessage(gnum, pnum, msg) => {
                     match tox.group_peername(gnum, pnum) {
                         Some(pname) => {
@@ -90,6 +116,7 @@ fn main() {
                         },
                     }
                 },
+
                 GroupNamelistChange(gnum, pnum, change) => {
                     let msg = match change {
                         ChatChange::PeerAdd => format!("Peer {} joined.", pnum),
@@ -103,6 +130,7 @@ fn main() {
                     };
                     drop(tox.group_message_send(gnum, &msg));
                 },
+
                 ev => { println!("Tox event: {:?}", ev); },
             }
         }
