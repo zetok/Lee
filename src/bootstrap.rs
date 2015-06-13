@@ -29,7 +29,7 @@ use rstox::core::*;
     file, it only will have 4 hardcoded nodes, which are known to be working
     at the time. Should contain both IPv4 and IPv6 nodes.
 
-    Given those contsrains, bootstrap nodes were selected due to my own
+    Given those constrains, bootstrap nodes were selected due to my own
     personal opinion, which is affected by multitude of factors.
 
     [1] https://github.com/irungentoo/Tox_Client_Guidelines/blob/master/Required/Bootstrapping.md
@@ -77,7 +77,7 @@ const BOOTSTRAP_NODES: &'static [BootNode<'static>] = &[
     nodes. Should be called after Tox instance will be initialized.
 */
 // TODO: ↓ check whether bootstrap nodes were loaded from a file, and if that
-// was the case, then skip this function (move to exec)
+// was the case, then skip this function
 pub fn bootstrap_hardcoded(tox: &mut Tox) {
     for node in BOOTSTRAP_NODES {
         let key = node.key.parse().unwrap();

@@ -59,7 +59,7 @@ fn main() {
     */
     bootstrap::bootstrap_hardcoded(&mut tox);
 
-    println!("{}", tox.get_address());
+    println!("\nMy ID: {}", tox.get_address());
 
     loop {
         for ev in tox.iter() {
