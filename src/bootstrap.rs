@@ -35,33 +35,42 @@ use rstox::core::*;
     [1] https://github.com/irungentoo/Tox_Client_Guidelines/blob/master/Required/Bootstrapping.md
 */
 // TODO: use those only when there's no list with bootstrap nodes present
-static BOOTSTRAP1_NAME: &'static str = "sonOfRa";
-static BOOTSTRAP1_IPV4: &'static str = "144.76.60.215";
-static BOOTSTRAP1_IPV6: &'static str = "2a01:4f8:191:64d6::1";
-static BOOTSTRAP1_PORT: u16 = 33445;
-static BOOTSTRAP1_KEY:  &'static str =
-    "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F";
+struct BootNode<'a> {
+    name: &'a str,
+    ips: &'a [&'a str],
+    port: u16,
+    key: &'a str,
+}
 
-static BOOTSTRAP2_NAME: &'static str = "SylvieLorxu";
-static BOOTSTRAP2_IPV4: &'static str = "178.21.112.187";
-static BOOTSTRAP2_IPV6: &'static str = "2a02:2308::216:3eff:fe82:eaef";
-static BOOTSTRAP2_PORT: u16 = 33445;
-static BOOTSTRAP2_KEY:  &'static str =
-    "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057";
+const BOOTSTRAP_NODES: &'static [BootNode<'static>] = &[
+    BootNode {
+        name: "sonOfRa",
+        ips: &["144.76.60.215", "2a01:4f8:191:64d6::1"],
+        port: 33445,
+        key: "04119E835DF3E78BACF0F84235B300546AF8B936F035185E2A8E9E0A67C8924F",
+    },
 
-static BOOTSTRAP3_NAME: &'static str = "Impyy";
-static BOOTSTRAP3_IPV4: &'static str = "178.62.250.138";
-static BOOTSTRAP3_IPV6: &'static str = "2a03:b0c0:2:d0::16:1";
-static BOOTSTRAP3_PORT: u16 = 33445;
-static BOOTSTRAP3_KEY:  &'static str =
-    "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B";
+    BootNode {
+        name: "SylvieLorxu",
+        ips: &["178.21.112.187", "2a02:2308::216:3eff:fe82:eaef"],
+        port: 33445,
+        key: "4B2C19E924972CB9B57732FB172F8A8604DE13EEDA2A6234E348983344B23057",
+    },
 
-static BOOTSTRAP4_NAME: &'static str = "ray65536";
-static BOOTSTRAP4_IPV4: &'static str = "108.61.165.198";
-static BOOTSTRAP4_PORT: u16 = 33445;
-static BOOTSTRAP4_KEY:  &'static str =
-    "8E7D0B859922EF569298B4D261A8CCB5FEA14FB91ED412A7603A585A25698832";
+    BootNode {
+        name: "Impyy",
+        ips: &["178.62.250.138", "2a03:b0c0:2:d0::16:1"],
+        port: 33445,
+        key: "788236D34978D1D5BD822F0A5BEBD2C53C64CC31CD3149350EE27D4D9A2F9B6B",
+    },
 
+    BootNode {
+        name: "ray65536",
+        ips: &["108.61.165.198"],
+        port: 33445,
+        key: "8E7D0B859922EF569298B4D261A8CCB5FEA14FB91ED412A7603A585A25698832",
+    },
+];
 
 /*
     Function should be skipped when there is provided file with bootstrap
@@ -70,51 +79,11 @@ static BOOTSTRAP4_KEY:  &'static str =
 // TODO: ↓ check whether bootstrap nodes were loaded from a file, and if that
 // was the case, then skip this function (move to exec)
 pub fn bootstrap_hardcoded(tox: &mut Tox) {
-    /*
-        Booststrap 1, both IPv4 and IPv6
-    */
-    let bootstrap1_key = BOOTSTRAP1_KEY.parse().unwrap();
-    tox.bootstrap(BOOTSTRAP1_IPV4, BOOTSTRAP1_PORT, bootstrap1_key).unwrap();
-
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP1_NAME, BOOTSTRAP1_IPV4, BOOTSTRAP1_PORT, BOOTSTRAP1_KEY);
-
-    tox.bootstrap(BOOTSTRAP1_IPV6, BOOTSTRAP1_PORT, bootstrap1_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP1_NAME, BOOTSTRAP1_IPV6, BOOTSTRAP1_PORT, BOOTSTRAP1_KEY);
-
-
-    /*
-        Bootstrap 2, both IPv4 and IPv6
-    */
-    let bootstrap2_key = BOOTSTRAP2_KEY.parse().unwrap();
-    tox.bootstrap(BOOTSTRAP2_IPV4, BOOTSTRAP2_PORT, bootstrap2_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP2_NAME, BOOTSTRAP2_IPV4, BOOTSTRAP2_PORT, BOOTSTRAP2_KEY);
-
-    tox.bootstrap(BOOTSTRAP2_IPV6, BOOTSTRAP2_PORT, bootstrap2_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP2_NAME, BOOTSTRAP2_IPV6, BOOTSTRAP2_PORT, BOOTSTRAP2_KEY);
-
-
-    /*
-        Bootstrap 3, both IPv4 and IPv6
-    */
-    let bootstrap3_key = BOOTSTRAP3_KEY.parse().unwrap();
-    tox.bootstrap(BOOTSTRAP3_IPV4, BOOTSTRAP3_PORT, bootstrap3_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP3_NAME, BOOTSTRAP3_IPV4, BOOTSTRAP3_PORT, BOOTSTRAP3_KEY);
-
-    tox.bootstrap(BOOTSTRAP3_IPV6, BOOTSTRAP3_PORT, bootstrap3_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP3_NAME, BOOTSTRAP3_IPV6, BOOTSTRAP3_PORT, BOOTSTRAP3_KEY);
-
-
-    /*
-        Bootstrap 4, only IPv4
-    */
-    let bootstrap3_key = BOOTSTRAP3_KEY.parse().unwrap();
-    tox.bootstrap(BOOTSTRAP4_IPV4, BOOTSTRAP4_PORT, bootstrap3_key).unwrap();
-    println!("Bootstrapping from {}, {}, {}, {}",
-        BOOTSTRAP4_NAME, BOOTSTRAP4_IPV4, BOOTSTRAP4_PORT, BOOTSTRAP4_KEY);
+    for node in BOOTSTRAP_NODES {
+        let key = node.key.parse().unwrap();
+        for ip in node.ips {
+            println!("Bootstrapping from {}: [{}]:{}, key: {}", node.name, ip, node.port, node.key);
+            tox.bootstrap(ip, node.port, key).unwrap();
+        }
+    }
 }
