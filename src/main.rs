@@ -33,7 +33,17 @@ static BOT_NAME: &'static str = "Layer\0";
 
 
 /*
-    Function that deals with incoming friend requests
+    Defend my honour. Needed to compare whether someone is not trying to
+    use my nick.
+    Also defend bot.
+*/
+// TODO: need to switch to PK-based impostor detection, since apparently
+//       some people can get '\0' as their name :3
+const FAKE_NAMES: &'static [&'static str] = &["Zetok", "zetok", "Layer"];
+
+
+/*
+    Function to deal with incoming friend requests
 */
 fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     drop(tox.add_friend_norequest(&fpk));
@@ -42,7 +52,7 @@ fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
 
 
 /*
-    Function that deals with incoming invites to groupchats
+    Function to deal with incoming invites to groupchats
 */
 fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) {
     /*
@@ -61,15 +71,46 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
 }
 
 
+/*
+    Function to deal with group messages
+*/
+fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String) {
+    match tox.group_peername(gnum, pnum) {
+        Some(pname) => {
+            if FAKE_NAMES.contains(&&*pname) {
+                drop(tox.group_message_send(gnum, "↑ an impostor!"));
+            }
+
+            println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
+        },
+        None => {
+            println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
+                gnum, pnum, msg);
+        },
+    }
+}
+
+
+/*
+    Function to deal with groupchat name change
+*/
+fn on_group_name_list_change(tox: &mut Tox, gnum: i32, pnum: i32, change: ChatChange) {
+    let msg = match change {
+        ChatChange::PeerAdd => format!("Peer {} joined.", pnum),
+        ChatChange::PeerDel => format!("Peer {} left.", pnum),
+        ChatChange::PeerName => {
+            match tox.group_peername(gnum, pnum) {
+                Some(pname) => format!("Peer {} is now known as {}", pnum, pname),
+                None => format!("Peer {} has unknown name!", pnum),
+            }
+        },
+    };
+    drop(tox.group_message_send(gnum, &msg));
+}
+
+
+
 fn main() {
-    /*
-        Defend my honour. Needed to compare whether someone is not trying to
-        use my nick.
-        Also defend bot.
-    */
-    // TODO: need to switch to PK-based impostor detection, since apparently
-    //       some people can get '\0' as their name :3
-    let fake_names = &["Zetok", "zetok", "Layer"];
 
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
 
@@ -102,33 +143,11 @@ fn main() {
                 },
 
                 GroupMessage(gnum, pnum, msg) => {
-                    match tox.group_peername(gnum, pnum) {
-                        Some(pname) => {
-                            if fake_names.contains(&&*pname) {
-                                drop(tox.group_message_send(gnum, "↑ an impostor!"));
-                            }
-
-                            println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
-                        },
-                        None => {
-                            println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
-                                gnum, pnum, msg);
-                        },
-                    }
+                    on_group_message(&mut tox, gnum, pnum, msg)
                 },
 
                 GroupNamelistChange(gnum, pnum, change) => {
-                    let msg = match change {
-                        ChatChange::PeerAdd => format!("Peer {} joined.", pnum),
-                        ChatChange::PeerDel => format!("Peer {} left.", pnum),
-                        ChatChange::PeerName => {
-                            match tox.group_peername(gnum, pnum) {
-                                Some(pname) => format!("Peer {} is now known as {}", pnum, pname),
-                                None => format!("Peer {} has unknown name!", pnum),
-                            }
-                        },
-                    };
-                    drop(tox.group_message_send(gnum, &msg));
+                    on_group_name_list_change(&mut tox, gnum, pnum, change);
                 },
 
                 ev => { println!("Tox event: {:?}", ev); },
