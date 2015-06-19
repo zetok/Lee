@@ -18,33 +18,51 @@
 */
 
 
-
+/*
+    Binding to toxcore
+*/
 extern crate rstox;
-
 use rstox::core::*;
 
+
+/*
+    For markov chain
+*/
+extern crate markov;
+use markov::Chain;
+
+
+/*
+    Lee's own stuff
+*/
+// TODO: when other functions will be moved from main.rs, things should be
+//       added here
 mod bootstrap;
+mod for_markov;
 
 
 // TODO: load it from config file, if not available, then use default one
 //         * perhaps it could be made of some random chars generated
 //           at runtime?
-static BOT_NAME: &'static str = "Layer\0";
+static BOT_NAME: &'static str = "Lee";
+static BOT_NAMES: &'static [&'static str] = &["Lee", "lee"];
 
 
 /*
     Defend my honour. Needed to compare whether someone is not trying to
     use my nick.
-    Also defend bot.
 */
 // TODO: need to switch to PK-based impostor detection, since apparently
 //       some people can get '\0' as their name :3
-const FAKE_NAMES: &'static [&'static str] = &["Zetok", "zetok", "Layer"];
+const FAKE_NAMES: &'static [&'static str] = &["Zetok", "zetok"];
 
 
 /*
     Function to deal with incoming friend requests
+
+    Currently accepts all by default
 */
+// TODO: make it configurable to accept all / only selected FRs
 fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     drop(tox.add_friend_norequest(&fpk));
     println!("Friend {} with friend message {:?} was added.", fpk, msg);
@@ -74,16 +92,44 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
 /*
     Function to deal with group messages
 */
-fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String) {
+fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, title: &mut bool, markov: &mut Chain<String>) {
+    // feed Lee with message content
+    markov.feed_str(&msg);
+
+    /*
+        Triggers Lee
+    */
+    fn trigger_response(tox: &mut Tox, gnum: i32, msg: &String, markov: &mut Chain<String>) {
+        for name in BOT_NAMES {
+            if msg.contains(name) {
+                let message: String = markov.generate_str();
+                drop(tox.group_message_send(gnum, &message));
+            }
+        }
+    }
+
     match tox.group_peername(gnum, pnum) {
         Some(pname) => {
             if FAKE_NAMES.contains(&&*pname) {
                 drop(tox.group_message_send(gnum, "↑ an impostor!"));
             }
 
+            if pname == "Zetok\0" {
+                if msg == ".trigger" {
+                    *title = true;
+                } else if msg == ".rmtrigger" {
+                    *title = false;
+                }
+            }
+
+            trigger_response(tox, gnum, &msg, markov);
+
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
         },
+
         None => {
+            trigger_response(tox, gnum, &msg, markov);
+
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
                 gnum, pnum, msg);
         },
@@ -112,9 +158,18 @@ fn on_group_name_list_change(tox: &mut Tox, gnum: i32, pnum: i32, change: ChatCh
 
 fn main() {
 
+    let mut chain = Chain::for_strings();
+    for_markov::feed_markov(&mut chain);
+
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
 
     drop(tox.set_name(BOT_NAME));
+
+
+    /*
+        If set to true, groupchat title should be protected.
+    */
+    let mut set_title: bool = false;
 
     /*
         Boostrapping process
@@ -130,6 +185,7 @@ fn main() {
     bootstrap::bootstrap_hardcoded(&mut tox);
 
     println!("\nMy ID: {}", tox.get_address());
+    println!("My name: {:?}", tox.get_name());
 
     loop {
         for ev in tox.iter() {
@@ -143,7 +199,7 @@ fn main() {
                 },
 
                 GroupMessage(gnum, pnum, msg) => {
-                    on_group_message(&mut tox, gnum, pnum, msg)
+                    on_group_message(&mut tox, gnum, pnum, msg, &mut set_title, &mut chain)
                 },
 
                 GroupNamelistChange(gnum, pnum, change) => {
@@ -152,6 +208,9 @@ fn main() {
 
                 ev => { println!("Tox event: {:?}", ev); },
             }
+        }
+        if set_title {
+            drop(tox.group_set_title(0, "#tox-real-ontopic | so what triggers everyone?"));
         }
         tox.wait();
     }
