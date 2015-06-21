@@ -13,3 +13,9 @@ branch="new-api"
 
 [dependencies.markov]
 markov = "*"
+
+[dependencies.chrono]
+chrono = "0.2"
+
+[dependencies.rand]
+rand = "0.3"

@@ -36,34 +36,12 @@ use markov::Chain;
     corresponding to a line from a file.
 */
 fn vec_strings(file: &str) -> Vec<String> {
-    /*
-        Try to open a file, `panic!` on error
-    */
-    let mut f: File = File::open(file).unwrap();
+    let mut file: File = File::open(file).unwrap();
 
-    /*
-        Initialize String to which initially whole file will be put into
-    */
-    let mut string = String::new();
+    let mut content = String::new();
+    file.read_to_string(&mut content).unwrap();
 
-    /*
-        Read the whole file into a single string, `panic!` on error
-    */
-    let _ = f.read_to_string(&mut string).unwrap();
-
-    /*
-        Initialize vector to be filled with strings and returned
-    */
-    let mut vec = Vec::new();
-
-    /*
-        Use iterator to push each line into vec
-    */
-    for l in string.lines() {
-        vec.push(l.to_string());
-    }
-
-    vec
+    content.lines().map(|l| l.to_string()).collect()
 }
 
 /*

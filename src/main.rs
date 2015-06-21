@@ -31,6 +31,16 @@ use rstox::core::*;
 extern crate markov;
 use markov::Chain;
 
+/*
+    For extra fun with markov chain
+*/
+extern crate chrono;
+use chrono::UTC;
+
+extern crate rand;
+use rand::ThreadRng;
+use rand::Rng;
+
 
 /*
     Lee's own stuff
@@ -41,20 +51,43 @@ mod bootstrap;
 mod for_markov;
 
 
+
+/*
+    For bot functionality
+*/
+//#[derive(Debug)]   // can't be used, since `rand` doesn't want to cooperate
+struct Bot {
+    markov: Chain<String>,
+    title_pin: bool,
+    pk: PublicKey,
+    last_group: i32,
+    last_time: i64,
+    speak: bool,
+    random: ThreadRng,
+}
+
+
+
 // TODO: load it from config file, if not available, then use default one
 //         * perhaps it could be made of some random chars generated
 //           at runtime?
 static BOT_NAME: &'static str = "Lee";
-static BOT_NAMES: &'static [&'static str] = &["Lee", "lee"];
+// TODO: make use of some fancy functions to not have that ↓ mess
+static BOT_NAMES: &'static [&'static str] = &["Lee", "lee", "LEE",
+                                        "LEe", "LeE", "lEE", "leE"];
 
 
 /*
     Defend my honour. Needed to compare whether someone is not trying to
     use my nick.
+
+    As extended measure, compares public key of peer.
+
+    Also defend bot.
 */
-// TODO: need to switch to PK-based impostor detection, since apparently
-//       some people can get '\0' as their name :3
-const FAKE_NAMES: &'static [&'static str] = &["Zetok", "zetok"];
+const FAKE_NAMES: &'static [&'static str] = &["Zetok\0", "Zetok", "zetok",
+                                          "Lee", "Lee\0"];
+
 
 
 /*
@@ -92,47 +125,77 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
 /*
     Function to deal with group messages
 */
-fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, title: &mut bool, markov: &mut Chain<String>) {
+fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut Bot) {
+    // mark this groupchat as last active one
+    bot.last_group = gnum;
+
     // feed Lee with message content
-    markov.feed_str(&msg);
+    bot.markov.feed_str(&msg);
 
     /*
         Triggers Lee
     */
-    fn trigger_response(tox: &mut Tox, gnum: i32, msg: &String, markov: &mut Chain<String>) {
+    fn trigger_response(tox: &mut Tox, gnum: i32, msg: &String, markov: &Chain<String>) {
+        // TODO: find out whether there isn't some more efficient way of
+        //       doing this
         for name in BOT_NAMES {
             if msg.contains(name) {
                 let message: String = markov.generate_str();
                 drop(tox.group_message_send(gnum, &message));
+                break;
             }
         }
     }
 
+    /*
+        Get PK of the peer who sent message
+
+        In case where toxcore doesn't feel like providing it, use own PK,
+        to avoid triggering false alarm
+    */
+    let pubkey = match tox.group_peer_pubkey(gnum, pnum) {
+        Some(pkey) => pkey,
+        None       => bot.pk,
+    };
+
     match tox.group_peername(gnum, pnum) {
         Some(pname) => {
             if FAKE_NAMES.contains(&&*pname) {
-                drop(tox.group_message_send(gnum, "↑ an impostor!"));
+                if pubkey != bot.pk &&
+                    pubkey != "29AE62F95C56063D833024B1CB5C2140DC4AEB94A80FF4596CACC460D7BAA062".parse::<PublicKey>().unwrap() {
+                    drop(tox.group_message_send(gnum, "↑ an impostor!"));
+                }
             }
 
             if pname == "Zetok\0" {
                 if msg == ".trigger" {
-                    *title = true;
+                    bot.title_pin = true;
                 } else if msg == ".rmtrigger" {
-                    *title = false;
+                    bot.title_pin = false;
                 }
             }
 
-            trigger_response(tox, gnum, &msg, markov);
+
+            trigger_response(tox, gnum, &msg, &bot.markov);
 
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
         },
 
         None => {
-            trigger_response(tox, gnum, &msg, markov);
+            trigger_response(tox, gnum, &msg, &bot.markov);
 
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
                 gnum, pnum, msg);
         },
+    }
+
+    /*
+        Allow anyone to turn speaking on / off
+    */
+    if msg == ".stahp" {
+        bot.speak = false;
+    } else if msg == ".talk" {
+        bot.speak = true;
     }
 }
 
@@ -157,19 +220,26 @@ fn on_group_name_list_change(tox: &mut Tox, gnum: i32, pnum: i32, change: ChatCh
 
 
 fn main() {
-
-    let mut chain = Chain::for_strings();
-    for_markov::feed_markov(&mut chain);
-
     let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
 
     drop(tox.set_name(BOT_NAME));
 
 
     /*
-        If set to true, groupchat title should be protected.
+        Bot stuff
     */
-    let mut set_title: bool = false;
+    let mut bot = Bot {
+        markov: Chain::for_strings(),
+        title_pin: false,
+        pk: tox.get_public_key(),
+        last_group: 0,
+        last_time: UTC::now().timestamp(),
+        speak: true,
+        random: rand::thread_rng(),
+    };
+
+    for_markov::feed_markov(&mut bot.markov);
+
 
     /*
         Boostrapping process
@@ -199,7 +269,7 @@ fn main() {
                 },
 
                 GroupMessage(gnum, pnum, msg) => {
-                    on_group_message(&mut tox, gnum, pnum, msg, &mut set_title, &mut chain)
+                    on_group_message(&mut tox, gnum, pnum, msg, &mut bot)
                 },
 
                 GroupNamelistChange(gnum, pnum, change) => {
@@ -209,9 +279,29 @@ fn main() {
                 ev => { println!("Tox event: {:?}", ev); },
             }
         }
-        if set_title {
+        if bot.title_pin {
             drop(tox.group_set_title(0, "#tox-real-ontopic | so what triggers everyone?"));
         }
+
+
+        /*
+            Let Lee speak every $time_interval, provided that there is given
+            permission for it
+        */
+        if bot.speak {
+        let cur_time = UTC::now().timestamp();
+            if  (bot.last_time + 30) < cur_time {
+                /* Should have only small chance to speak */
+                if 0.0002 > bot.random.gen::<f64>() {
+                    let message = bot.markov.generate_str();
+                    drop(tox.group_message_send(bot.last_group, &message));
+
+                    bot.last_time = cur_time;
+                }
+            }
+        }
+
+
         tox.wait();
     }
 }
