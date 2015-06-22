@@ -290,14 +290,14 @@ fn main() {
         */
         if bot.speak {
         let cur_time = UTC::now().timestamp();
-            if  (bot.last_time + 30) < cur_time {
+            if  (bot.last_time + 9) < cur_time {
                 /* Should have only small chance to speak */
-                if 0.0002 > bot.random.gen::<f64>() {
+                if 0.02 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
                     drop(tox.group_message_send(bot.last_group, &message));
-
-                    bot.last_time = cur_time;
                 }
+
+                bot.last_time = cur_time;
             }
         }
 
