@@ -102,7 +102,7 @@ struct Bot {
     speak: bool,
 
     /*
-        `triggered` isused to launch Lee's talk when something will trigger
+        `trigger` is used to launch Lee's talk when something will trigger
         it, by mentioning its name. Answer shouldn't be instantaneous, which
         will make Lee more human.
 
