@@ -58,11 +58,71 @@ mod for_markov;
 //#[derive(Debug)]   // can't be used, since `rand` doesn't want to cooperate
 struct Bot {
     markov: Chain<String>,
+
+    /*
+        Option to decide whether title should be changed, by default `false`.
+
+        Currently this value can be altered by hardcoded bot owner,
+        recognised by unique, hardcoded nick. !! This behaviour should be
+        altered, to have public-key based owner recognition, in addition to
+        loading public key from config file.
+    */
     title_pin: bool,
+
+    /*
+        Lee's own public key
+    */
     pk: PublicKey,
+
+    /*
+        Last group from which message of any kind was received.
+
+        This value is being used to decide in which groupchat Lee should
+        speak randomly – since out of all groupchats this was the last one
+        in which activity was observed, it is most likely that there are
+        some people in it able to receive Lee's message.
+    */
     last_group: i32,
+
+    /*
+        Time since Lee last spoken randomly.
+    */
     last_time: i64,
+
+    /*
+        Option to allow Lee talk ar $random_interval, it does not affect Lee's
+        response when triggered (highlighted).
+
+        Can be altered by users using commands:
+         - `.stahp` – will make Lee stop speaking randomly
+         - `.talk`  – will make Lee resume speaking randomly
+
+        Defalut value should be `true`.
+    */
     speak: bool,
+
+    /*
+        `triggered` isused to launch Lee's talk when something will trigger
+        it, by mentioning its name. Answer shouldn't be instantaneous, which
+        will make Lee more human.
+
+        By default should be `false`, and after countdown was down to 0, it
+        should be restored to `false.
+    */
+    trigger: bool,
+
+    /*
+        Time when trigger happened, as UNIX time in i64.
+
+        Seconds should be added to this value, so that time of Lee's response
+        for trigger would be more human-like, rather than instantaneous.
+    */
+    trigger_time: i64,
+
+    /*
+        Cached RNG, apparently it helps with RNG's performance when it's used
+        a lot.
+    */
     random: ThreadRng,
 }
 
@@ -126,27 +186,6 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
     Function to deal with group messages
 */
 fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut Bot) {
-    // mark this groupchat as last active one
-    bot.last_group = gnum;
-
-    // feed Lee with message content
-    bot.markov.feed_str(&msg);
-
-    /*
-        Triggers Lee
-    */
-    fn trigger_response(tox: &mut Tox, gnum: i32, msg: &String, markov: &Chain<String>) {
-        // TODO: find out whether there isn't some more efficient way of
-        //       doing this
-        for name in BOT_NAMES {
-            if msg.contains(name) {
-                let message: String = markov.generate_str();
-                drop(tox.group_message_send(gnum, &message));
-                break;
-            }
-        }
-    }
-
     /*
         Get PK of the peer who sent message
 
@@ -157,6 +196,44 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
         Some(pkey) => pkey,
         None       => bot.pk,
     };
+
+
+    // mark this groupchat as last active one
+    bot.last_group = gnum;
+
+    /*
+        feed Lee with message content, but only if peer PK doesn't match
+        Lee's own PK
+
+        Feeding Lee with what it threw up may not be a good idea after all..
+    */
+    if pubkey != bot.pk {
+        bot.markov.feed_str(&msg);
+    }
+
+
+    /*
+        Triggers Lee
+    */
+    fn trigger_response(msg: &String, bot: &mut Bot) {
+        // TODO: find out whether there isn't some more efficient way of
+        //       doing this
+        for name in BOT_NAMES {
+            if msg.contains(name) {
+                bot.trigger = true;
+                /*
+                    ↓ waiting time for response should be random, for more
+                    human-like feel, and should be at least 2s long – too
+                    quick answer isn't too good either.
+
+                    Currently waiting time should be between 1 and 5s.
+                */
+                let random_wait = 1.0 + 4.0 * bot.random.gen::<f64>();
+                bot.trigger_time = random_wait as i64 + UTC::now().timestamp();
+                break;
+            }
+        }
+    }
 
     match tox.group_peername(gnum, pnum) {
         Some(pname) => {
@@ -176,13 +253,13 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
             }
 
 
-            trigger_response(tox, gnum, &msg, &bot.markov);
+            trigger_response(&msg, bot);
 
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
         },
 
         None => {
-            trigger_response(tox, gnum, &msg, &bot.markov);
+            trigger_response(&msg, bot);
 
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
                 gnum, pnum, msg);
@@ -235,6 +312,8 @@ fn main() {
         last_group: 0,
         last_time: UTC::now().timestamp(),
         speak: true,
+        trigger: false,
+        trigger_time: UTC::now().timestamp(),
         random: rand::thread_rng(),
     };
 
@@ -285,14 +364,28 @@ fn main() {
 
 
         /*
+            Let Lee speak when triggered, provided that it will wait required
+            amount of time.
+        */
+        if bot.trigger {
+            let cur_time = UTC::now().timestamp();
+            if cur_time >= bot.trigger_time {
+                let message = bot.markov.generate_str();
+                drop(tox.group_message_send(bot.last_group, &message));
+                bot.trigger = false;
+            }
+        }
+
+
+        /*
             Let Lee speak every $time_interval, provided that there is given
             permission for it
         */
         if bot.speak {
-        let cur_time = UTC::now().timestamp();
+            let cur_time = UTC::now().timestamp();
             if  (bot.last_time + 9) < cur_time {
                 /* Should have only small chance to speak */
-                if 0.02 > bot.random.gen::<f64>() {
+                if 0.0161 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
                     drop(tox.group_message_send(bot.last_group, &message));
                 }
