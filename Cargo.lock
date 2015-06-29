@@ -56,7 +56,7 @@ dependencies = [
 [[package]]
 name = "rstox"
 version = "0.0.1"
-source = "git+https://github.com/suhr/rstox.git?branch=new-api#bb635d71855c18247d5e9c43a07e8c52b89f6e7b"
+source = "git+https://github.com/suhr/rstox.git?branch=new-api#1e0ffe747e3c9004649600ce7b65f62ef2016110"
 dependencies = [
  "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

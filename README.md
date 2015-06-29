@@ -4,6 +4,7 @@ This is a bot for Tox groupchats. It currently does very little, more functional
 # Features
 
 * support for text groupchats
+* support for 1-on-1 chats
 * markov chain
 * ..and lots of other features `;)`
 
@@ -19,12 +20,13 @@ Installation is fairly simple. This bot will only work on Linux.
 
 Currently Lee requires file `markov.txt` to be available in working directory. Preferably with some content.
 
-Currently, the only real command supported by Lee is turning off / on random talk on its own.
+Currently supported by Lee commands are:
 
 | Command | What it does |
 |---------|--------------|
 | .stahp  | Turns off talking on its own |
 | .talk   | Turns on talking on its own  |
+| .id     | Lee will say its ID          |
 
 
 By default Lee talks on its own at random times, few times per hour.

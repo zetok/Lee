@@ -59,7 +59,7 @@ mod for_markov;
 struct Bot {
     markov: Chain<String>,
 
-    /*
+    /**
         Option to decide whether title should be changed, by default `false`.
 
         Currently this value can be altered by hardcoded bot owner,
@@ -69,12 +69,12 @@ struct Bot {
     */
     title_pin: bool,
 
-    /*
+    /**
         Lee's own public key
     */
     pk: PublicKey,
 
-    /*
+    /**
         Last group from which message of any kind was received.
 
         This value is being used to decide in which groupchat Lee should
@@ -84,12 +84,12 @@ struct Bot {
     */
     last_group: i32,
 
-    /*
+    /**
         Time since Lee last spoken randomly.
     */
     last_time: i64,
 
-    /*
+    /**
         Option to allow Lee talk ar $random_interval, it does not affect Lee's
         response when triggered (highlighted).
 
@@ -101,7 +101,7 @@ struct Bot {
     */
     speak: bool,
 
-    /*
+    /**
         `trigger` is used to launch Lee's talk when something will trigger
         it, by mentioning its name. Answer shouldn't be instantaneous, which
         will make Lee more human.
@@ -111,7 +111,7 @@ struct Bot {
     */
     trigger: bool,
 
-    /*
+    /**
         Time when trigger happened, as UNIX time in i64.
 
         Seconds should be added to this value, so that time of Lee's response
@@ -119,7 +119,7 @@ struct Bot {
     */
     trigger_time: i64,
 
-    /*
+    /**
         Cached RNG, apparently it helps with RNG's performance when it's used
         a lot.
     */
@@ -158,8 +158,43 @@ const FAKE_NAMES: &'static [&'static str] = &["Zetok\0", "Zetok", "zetok",
 // TODO: make it configurable to accept all / only selected FRs
 fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     drop(tox.add_friend_norequest(&fpk));
-    println!("Friend {} with friend message {:?} was added.", fpk, msg);
+    println!("\nFriend {} with friend message {:?} was added.", fpk, msg);
 }
+
+
+/*
+    Function to deal with friend messages
+
+    Lee is supposed to answer all friend messages, in ~similar way to
+    how it's done in groupchats.
+*/
+fn on_friend_message(tox: &mut Tox, fnum: u32, kind: MessageType, msg: String,
+                    bot: &mut Bot) {
+    let pubkey = match tox.get_friend_public_key(fnum) {
+        Some(pkey) => pkey,
+        None       => bot.pk,
+    };
+
+
+    println!("\nEvent: FriendMessage:\nFriend {} sent message: {}", pubkey, &msg);
+
+
+    /*
+        feed Lee with message content, but only if peer PK doesn't match
+        Lee's own PK
+
+        Feeding Lee with what it threw up may not be a good idea after all..
+    */
+    if pubkey != bot.pk {
+        bot.markov.feed_str(&msg);
+    }
+
+
+    let message = bot.markov.generate_str();
+    println!("Answer: {}", &message);
+    drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+}
+
 
 
 /*
@@ -173,10 +208,10 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
     match kind {
         GroupchatType::Text => {
             drop(tox.join_groupchat(fid, &data));
-            println!("Accepted invite to text groupchat by {}.", fid);
+            println!("\nAccepted invite to text groupchat by {}.", fid);
         },
         GroupchatType::Av => {
-            println!("Declined invite to audio groupchat by {}.", fid);
+            println!("\nDeclined invite to audio groupchat by {}.", fid);
         },
     }
 }
@@ -255,14 +290,15 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
 
             trigger_response(&msg, bot);
 
-            println!("Tox event: GroupMessage({}, {}, {:?}), Name: {:?}", gnum, pnum, msg, pname);
+            println!("\nEvent: GroupMessage({}, {}, {:?}), Name: {:?}, PK: {}",
+                gnum, pnum, msg, pname, pubkey);
         },
 
         None => {
             trigger_response(&msg, bot);
 
-            println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•",
-                gnum, pnum, msg);
+            println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•, PK: {}",
+                gnum, pnum, msg, pubkey);
         },
     }
 
@@ -274,6 +310,15 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     } else if msg == ".talk" {
         bot.speak = true;
     }
+
+    /*
+        Allow anyone to get Lee's ID
+    */
+    if msg == ".id" && pubkey != bot.pk {
+        let message = format!("My ID: {}", tox.get_address());
+        drop(tox.group_message_send(gnum, &message));
+    }
+
 }
 
 
@@ -343,6 +388,10 @@ fn main() {
                     on_friend_request(&mut tox, fpk, msg);
                 },
 
+                FriendMessage(fnum, kind, msg) => {
+                    on_friend_message(&mut tox, fnum, kind, msg, &mut bot);
+                },
+
                 GroupInvite(fid, kind, data) => {
                     on_group_invite(&mut tox, fid, kind, data);
                 },
@@ -352,10 +401,10 @@ fn main() {
                 },
 
                 GroupNamelistChange(gnum, pnum, change) => {
-                    on_group_name_list_change(&mut tox, gnum, pnum, change);
+                    //on_group_name_list_change(&mut tox, gnum, pnum, change);
                 },
 
-                ev => { println!("Tox event: {:?}", ev); },
+                ev => { println!("\nTox event: {:?}", ev); },
             }
         }
         if bot.title_pin {
@@ -383,7 +432,7 @@ fn main() {
         */
         if bot.speak {
             let cur_time = UTC::now().timestamp();
-            if  (bot.last_time + 9) < cur_time {
+            if  (bot.last_time + 10) < cur_time {
                 /* Should have only small chance to speak */
                 if 0.0161 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
