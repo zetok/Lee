@@ -168,8 +168,7 @@ fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     Lee is supposed to answer all friend messages, in ~similar way to
     how it's done in groupchats.
 */
-fn on_friend_message(tox: &mut Tox, fnum: u32, kind: MessageType, msg: String,
-                    bot: &mut Bot) {
+fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
     let pubkey = match tox.get_friend_public_key(fnum) {
         Some(pkey) => pkey,
         None       => bot.pk,
@@ -279,14 +278,6 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 }
             }
 
-            if pname == "Zetok\0" {
-                if msg == ".trigger" {
-                    bot.title_pin = true;
-                } else if msg == ".rmtrigger" {
-                    bot.title_pin = false;
-                }
-            }
-
 
             trigger_response(&msg, bot);
 
@@ -320,25 +311,6 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     }
 
 }
-
-
-/*
-    Function to deal with groupchat name change
-*/
-fn on_group_name_list_change(tox: &mut Tox, gnum: i32, pnum: i32, change: ChatChange) {
-    let msg = match change {
-        ChatChange::PeerAdd => format!("Peer {} joined.", pnum),
-        ChatChange::PeerDel => format!("Peer {} left.", pnum),
-        ChatChange::PeerName => {
-            match tox.group_peername(gnum, pnum) {
-                Some(pname) => format!("Peer {} is now known as {}", pnum, pname),
-                None => format!("Peer {} has unknown name!", pnum),
-            }
-        },
-    };
-    drop(tox.group_message_send(gnum, &msg));
-}
-
 
 
 fn main() {
@@ -388,8 +360,8 @@ fn main() {
                     on_friend_request(&mut tox, fpk, msg);
                 },
 
-                FriendMessage(fnum, kind, msg) => {
-                    on_friend_message(&mut tox, fnum, kind, msg, &mut bot);
+                FriendMessage(fnum, _, msg) => {
+                    on_friend_message(&mut tox, fnum, msg, &mut bot);
                 },
 
                 GroupInvite(fid, kind, data) => {
@@ -398,10 +370,6 @@ fn main() {
 
                 GroupMessage(gnum, pnum, msg) => {
                     on_group_message(&mut tox, gnum, pnum, msg, &mut bot)
-                },
-
-                GroupNamelistChange(gnum, pnum, change) => {
-                    //on_group_name_list_change(&mut tox, gnum, pnum, change);
                 },
 
                 ev => { println!("\nTox event: {:?}", ev); },

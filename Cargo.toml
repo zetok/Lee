@@ -6,9 +6,7 @@ authors = ["zetok"]
 
 
 [dependencies.rstox]
-
 git = "https://github.com/suhr/rstox.git"
-branch="new-api"
 
 
 [dependencies.markov]
