@@ -44,8 +44,8 @@ fn vec_strings(file: &str) -> Vec<String> {
     content.lines().map(|l| l.to_string()).collect()
 }
 
-/*
-    Feed markov with stuff
+/**
+    Feed markov chain with strings from a file
 */
 pub fn feed_markov(chain: &mut Chain<String>) {
     /*
@@ -89,5 +89,47 @@ pub fn feed_markov(chain: &mut Chain<String>) {
             // ...aaaand clear string
             string.clear();
         }
+    }
+}
+
+
+
+/**
+    Function to load save file from `save.tox` file.
+
+    In case where it can't be opened, return an error, so that it could
+    be printed, and Tox instance could be initialized without it.
+*/
+pub fn load_save(f: &str) -> Result<Vec<u8>, String> {
+    match File::open(f) {
+        Ok(mut file) => {
+            let mut res: Vec<u8> = Vec::new();
+            drop(file.read_to_end(&mut res));
+            Ok(res)
+        },
+
+        Err(e) => {
+            Err(format!("{}", e))
+        },
+    }
+}
+
+
+/**
+    Function to write save file to storage.
+
+    In case where it can't be written to, return an error, so that it could
+    be printed.
+*/
+pub fn write_save(f: &str, data: Vec<u8>) -> Result<(), String> {
+    match File::create(f) {
+        Ok(mut file) => {
+            drop(file.write(&data));
+            Ok(())
+        },
+
+        Err(e) => {
+            Err(format!("{}", e))
+        },
     }
 }

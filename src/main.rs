@@ -48,7 +48,7 @@ use rand::Rng;
 // TODO: when other functions will be moved from main.rs, things should be
 //       added here
 mod bootstrap;
-mod for_markov;
+mod for_files;
 
 
 
@@ -58,6 +58,11 @@ mod for_markov;
 //#[derive(Debug)]   // can't be used, since `rand` doesn't want to cooperate
 struct Bot {
     markov: Chain<String>,
+
+    /**
+        Time since last save.
+    */
+    last_save: i64,
 
     /**
         Option to decide whether title should be changed, by default `false`.
@@ -177,7 +182,6 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
 
     println!("\nEvent: FriendMessage:\nFriend {} sent message: {}", pubkey, &msg);
 
-
     /*
         feed Lee with message content, but only if peer PK doesn't match
         Lee's own PK
@@ -187,7 +191,6 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
     if pubkey != bot.pk {
         bot.markov.feed_str(&msg);
     }
-
 
     let message = bot.markov.generate_str();
     println!("Answer: {}", &message);
@@ -235,16 +238,6 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     // mark this groupchat as last active one
     bot.last_group = gnum;
 
-    /*
-        feed Lee with message content, but only if peer PK doesn't match
-        Lee's own PK
-
-        Feeding Lee with what it threw up may not be a good idea after all..
-    */
-    if pubkey != bot.pk {
-        bot.markov.feed_str(&msg);
-    }
-
 
     /*
         Triggers Lee
@@ -271,6 +264,18 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
 
     match tox.group_peername(gnum, pnum) {
         Some(pname) => {
+            /*
+                feed Lee with message content, but only if peer PK doesn't match
+                Lee's own PK
+
+                Feeding Lee with what it threw up may not be a good idea after
+                all..
+            */
+            if pubkey != bot.pk && pname != "Layer" {
+                bot.markov.feed_str(&msg);
+            }
+
+
             if FAKE_NAMES.contains(&&*pname) {
                 if pubkey != bot.pk &&
                     pubkey != "29AE62F95C56063D833024B1CB5C2140DC4AEB94A80FF4596CACC460D7BAA062".parse::<PublicKey>().unwrap() {
@@ -314,16 +319,44 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
 
 
 fn main() {
-    let mut tox = Tox::new(ToxOptions::new(), None).unwrap();
+    /*
+        Try to load data file, if not possible, print an error and generate
+        new Tox instance.
+    */
+    let data = match for_files::load_save("lee.tox") {
+        Ok(d) => Some(d),
+        Err(e) => {
+            println!("\nError loading save: {}", e);
+            None
+        },
+    };
+    let mut tox = Tox::new(ToxOptions::new(), data.as_ref()
+                                            .map(|x| &**x)).unwrap();
 
     drop(tox.set_name(BOT_NAME));
-
 
     /*
         Bot stuff
     */
     let mut bot = Bot {
-        markov: Chain::for_strings(),
+        /*
+            Try to load chain from a file, if not possible, then try to add
+            strings to a chain from `markov.txt`. If even that is not
+            available,, initialize an empty chain.
+        */
+        markov: {
+            match Chain::load_utf8("markov.json") {
+                Ok(data) => data,
+                Err(e) => {
+                    println!("Error loading `markov.json`: {}", e);
+                    let mut chain = Chain::for_strings();
+                    for_files::feed_markov(&mut chain);
+                    chain
+                },
+            }
+        },
+
+        last_save: UTC::now().timestamp(),
         title_pin: false,
         pk: tox.get_public_key(),
         last_group: 0,
@@ -333,8 +366,6 @@ fn main() {
         trigger_time: UTC::now().timestamp(),
         random: rand::thread_rng(),
     };
-
-    for_markov::feed_markov(&mut bot.markov);
 
 
     /*
@@ -409,6 +440,25 @@ fn main() {
 
                 bot.last_time = cur_time;
             }
+        }
+
+
+        /*
+            Write save data every 64s.
+
+            After a write, be it successful or not, set clock again to tick,
+            for the next time when it'll need to be saved.
+            TODO: save data every $relevant_event, rather than on timer.
+        */
+        let cur_time = UTC::now().timestamp();
+        if bot.last_save + 64 < cur_time {
+            match for_files::write_save("lee.tox", tox.save()) {
+                Ok(_) => println!("\nFile saved."),
+                Err(e) => println!("\nFailed to save file: {}", e),
+            }
+            drop(bot.markov.save_utf8("markov.json"));
+            println!("Saved `markov.json`");
+            bot.last_save = cur_time;
         }
 
 
