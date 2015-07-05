@@ -65,16 +65,6 @@ struct Bot {
     last_save: i64,
 
     /**
-        Option to decide whether title should be changed, by default `false`.
-
-        Currently this value can be altered by hardcoded bot owner,
-        recognised by unique, hardcoded nick. !! This behaviour should be
-        altered, to have public-key based owner recognition, in addition to
-        loading public key from config file.
-    */
-    title_pin: bool,
-
-    /**
         Lee's own public key
     */
     pk: PublicKey,
@@ -143,16 +133,28 @@ static BOT_NAMES: &'static [&'static str] = &["Lee", "lee", "LEE",
 
 
 /*
-    Defend my honour. Needed to compare whether someone is not trying to
-    use my nick.
-
+    Defend honour of a bot.
     As extended measure, compares public key of peer.
-
-    Also defend bot.
 */
-const FAKE_NAMES: &'static [&'static str] = &["Zetok\0", "Zetok", "zetok",
-                                          "Lee", "Lee\0"];
+const FAKE_NAMES: &'static [&'static str] = &["Lee", "Lee\0"];
 
+
+/*
+    Function to make chain - either load it from `.json` file, or, if
+    that will fail for some reason, make an empty chain and feed it with
+    contents of a file.
+*/
+fn make_chain() -> Chain<String> {
+    match Chain::load_utf8("markov.json") {
+        Ok(data) => data,
+        Err(e) => {
+            println!("Error loading `markov.json`: {}", e);
+            let mut chain = Chain::for_strings();
+            for_files::feed_markov(&mut chain);
+            chain
+        },
+    }
+}
 
 
 /*
@@ -192,9 +194,26 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
         bot.markov.feed_str(&msg);
     }
 
-    let message = bot.markov.generate_str();
-    println!("Answer: {}", &message);
-    drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+
+    /*
+        Send "about" message
+    */
+    if msg == ".about" {
+        let message = format!(
+"Lee is libre software, licensed under GPLv3+.
+
+Uses Supreme Tox technology.
+
+Made by Zetok\0.
+Many thanks to all the people who helped in making it.
+
+For more info, visit: https://github.com/zetok/Lee");
+        drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+    } else {
+        let message = bot.markov.generate_str();
+        println!("Answer: {}", &message);
+        drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+    }
 }
 
 
@@ -277,8 +296,7 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
 
 
             if FAKE_NAMES.contains(&&*pname) {
-                if pubkey != bot.pk &&
-                    pubkey != "29AE62F95C56063D833024B1CB5C2140DC4AEB94A80FF4596CACC460D7BAA062".parse::<PublicKey>().unwrap() {
+                if pubkey != bot.pk {
                     drop(tox.group_message_send(gnum, "↑ an impostor!"));
                 }
             }
@@ -315,6 +333,19 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
         drop(tox.group_message_send(gnum, &message));
     }
 
+    /*
+        Send "about" message
+    */
+    if msg == ".about" {
+        let message = format!(
+"Lee is libre software, licensed under GPLv3+.
+
+Made by Zetok\0.
+Many thanks to all the people who helped in making it.
+
+For more info, visit: https://github.com/zetok/Lee");
+        drop(tox.group_message_send(gnum, &message));
+    }
 }
 
 
@@ -339,25 +370,8 @@ fn main() {
         Bot stuff
     */
     let mut bot = Bot {
-        /*
-            Try to load chain from a file, if not possible, then try to add
-            strings to a chain from `markov.txt`. If even that is not
-            available,, initialize an empty chain.
-        */
-        markov: {
-            match Chain::load_utf8("markov.json") {
-                Ok(data) => data,
-                Err(e) => {
-                    println!("Error loading `markov.json`: {}", e);
-                    let mut chain = Chain::for_strings();
-                    for_files::feed_markov(&mut chain);
-                    chain
-                },
-            }
-        },
-
+        markov: make_chain(),
         last_save: UTC::now().timestamp(),
-        title_pin: false,
         pk: tox.get_public_key(),
         last_group: 0,
         last_time: UTC::now().timestamp(),
@@ -405,9 +419,6 @@ fn main() {
 
                 ev => { println!("\nTox event: {:?}", ev); },
             }
-        }
-        if bot.title_pin {
-            drop(tox.group_set_title(0, "#tox-real-ontopic | so what triggers everyone?"));
         }
 
 

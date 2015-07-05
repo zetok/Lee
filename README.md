@@ -32,9 +32,10 @@ Currently supported by Lee commands are:
 
 | Command | What it does |
 |---------|--------------|
-| .stahp  | Turns off talking on its own |
-| .talk   | Turns on talking on its own  |
+| .about  | Send "About" message         |
 | .id     | Lee will say its ID          |
+| .talk   | Turns on talking on its own  |
+| .stahp  | Turns off talking on its own |
 
 
 By default Lee talks on its own at random times, few times per hour.
