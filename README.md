@@ -30,12 +30,20 @@ Last line in a file should not be empty.<br/>
 
 Currently supported by Lee commands are:
 
+## Groupchat commands
+
 | Command | What it does |
 |---------|--------------|
 | .about  | Send "About" message         |
 | .id     | Lee will say its ID          |
 | .talk   | Turns on talking on its own  |
 | .stahp  | Turns off talking on its own |
+
+## Friend commands
+
+| Command | What it does |
+|---------|--------------|
+| invite  | Invites to last groupchat in which someone spoke |
 
 
 By default Lee talks on its own at random times, few times per hour.

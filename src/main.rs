@@ -170,10 +170,13 @@ fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
 
 
 /*
-    Function to deal with friend messages
+    Function to deal with friend messages.
 
     Lee is supposed to answer all friend messages, in ~similar way to
     how it's done in groupchats.
+
+    The only **exception** is inviting friends to last groupchat in which
+    someone spoke in - in this case Lee should return early.
 */
 fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
     let pubkey = match tox.get_friend_public_key(fnum) {
@@ -181,6 +184,18 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
         None       => bot.pk,
     };
 
+    /*
+        Invite friend and return early, to not feed markov with invite
+        command.
+
+        TODO: make it possible to print to stdout friend's name when inviting
+    */
+    if &msg == "invite" {
+        drop(tox.invite_friend(fnum as i32, bot.last_group));
+        println!("\nSent invitation to friend {} to groupchat {}",
+            fnum, bot.last_group);
+        return;
+    }
 
     println!("\nEvent: FriendMessage:\nFriend {} sent message: {}", pubkey, &msg);
 
