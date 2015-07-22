@@ -130,6 +130,8 @@ static BOT_NAME: &'static str = "Lee";
 // TODO: make use of some fancy functions to not have that ↓ mess
 static BOT_NAMES: &'static [&'static str] = &["Lee", "lee", "LEE",
                                         "LEe", "LeE", "lEE", "leE"];
+static BOT_STATUS_MSG: &'static str =
+        "Send me a message 'invite' to get into the groupchat";
 
 
 /*
@@ -380,6 +382,7 @@ fn main() {
                                             .map(|x| &**x)).unwrap();
 
     drop(tox.set_name(BOT_NAME));
+    drop(tox.set_status_message(BOT_STATUS_MSG));
 
     /*
         Bot stuff

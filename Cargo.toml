@@ -10,7 +10,7 @@ git = "https://github.com/suhr/rstox.git"
 
 
 [dependencies.markov]
-markov = "*"
+markov = "0.0.29"
 
 [dependencies.chrono]
 chrono = "0.2"
