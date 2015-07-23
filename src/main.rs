@@ -319,14 +319,18 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
             }
 
 
-            trigger_response(&msg, bot);
+            if pubkey != bot.pk {
+                trigger_response(&msg, bot);
+            }
 
             println!("\nEvent: GroupMessage({}, {}, {:?}), Name: {:?}, PK: {}",
                 gnum, pnum, msg, pname, pubkey);
         },
 
         None => {
-            trigger_response(&msg, bot);
+            if pubkey != bot.pk {
+                trigger_response(&msg, bot);
+            }
 
             println!("Tox event: GroupMessage({}, {}, {:?}), Name: •not known•, PK: {}",
                 gnum, pnum, msg, pubkey);
