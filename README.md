@@ -12,7 +12,9 @@ More features may come along the way `:)`
 
 
 # Installation
-Installation is fairly simple. This bot will only work on Linux. 
+Installation is fairly simple. This bot will work only on Linux.
+
+Newest [**toxcore**](https://github.com/irungentoo/toxcore) is required. For instructions on how to get it, please refer to its [INSTALL.md](https://github.com/irungentoo/toxcore/blob/master/INSTALL.md).
 
 1. Install [Rust](http://www.rust-lang.org/)
 2. Make with `cargo build`

@@ -293,6 +293,8 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 */
                 let random_wait = 1.0 + 4.0 * bot.random.gen::<f64>();
                 bot.trigger_time = random_wait as i64 + UTC::now().timestamp();
+
+                // don't loop unnecessarily – 1 occurence of a name is enough
                 break;
             }
         }
