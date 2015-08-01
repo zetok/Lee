@@ -2,12 +2,15 @@ This is a markov bot for Tox groupchats. It's the best `;)`
 
 More features may come along the way `:)`
 
+(Any contributions are welcome)
+
 # Features
 
 * support for text groupchats
 * support for 1-on-1 chats
 * markov chain
 * saving & loading Tox data file & markov chain
+* leaves groupchat when there is no one else than bot
 * ..and lots of other features `;)`
 
 

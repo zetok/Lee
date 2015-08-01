@@ -102,7 +102,7 @@ struct Bot {
         will make Lee more human.
 
         By default should be `false`, and after countdown was down to 0, it
-        should be restored to `false.
+        should be restored to `false`.
     */
     trigger: bool,
 
@@ -372,6 +372,26 @@ For more info, visit: https://github.com/zetok/Lee");
 }
 
 
+/*
+    Function to deal with namechanges in groupchat
+
+    Upon detecting that someone leaves, bot should check how many peers are
+    left, and if there is only 1 peer (bot), automatically leave groupchat.
+
+    After leaving groupchat, print info about it.
+*/
+fn on_group_namelist_change(tox: &mut Tox, gnum: i32, change: ChatChange) {
+    if let ChatChange::PeerDel = change {
+        if let Some(peers) = tox.group_number_peers(gnum) {
+            if peers == 1 {
+                drop(tox.del_groupchat(gnum));
+                println!("\nLeft empty group {} .", gnum);
+            }
+        }
+    }
+}
+
+
 fn main() {
     /*
         Try to load data file, if not possible, print an error and generate
@@ -438,7 +458,11 @@ fn main() {
                 },
 
                 GroupMessage(gnum, pnum, msg) => {
-                    on_group_message(&mut tox, gnum, pnum, msg, &mut bot)
+                    on_group_message(&mut tox, gnum, pnum, msg, &mut bot);
+                },
+
+                GroupNamelistChange(gnum, _pnum, change) => {
+                    on_group_namelist_change(&mut tox, gnum, change);
                 },
 
                 ev => { println!("\nTox event: {:?}", ev); },
