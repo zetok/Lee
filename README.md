@@ -4,6 +4,8 @@ More features may come along the way `:)`
 
 (Any contributions are welcome)
 
+Build status: [![Build Status](https://travis-ci.org/zetok/Lee.svg)](https://travis-ci.org/zetok/Lee)
+
 # Features
 
 * support for text groupchats

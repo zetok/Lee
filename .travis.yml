@@ -1,0 +1,38 @@
+language: rust
+rust:
+  - stable
+  - beta
+  - nightly
+matrix:
+  allow_failure:
+  - rust: nightly
+
+sudo: required
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -y build-essential libtool autotools-dev automake checkinstall check git yasm pkg-config libvpx-dev
+  - wget http://downloads.xiph.org/releases/opus/opus-1.0.3.tar.gz
+  - tar xvzf opus-1.0.3.tar.gz
+  - cd opus-1.0.3
+  - ./configure
+  - make
+  - sudo make install
+  - cd ..
+  - git clone git://github.com/jedisct1/libsodium.git
+  - cd libsodium
+  - git checkout tags/1.0.3
+  - ./autogen.sh
+  - ./configure && make check
+  - sudo checkinstall --install --pkgname libsodium --pkgversion 1.0.3 --nodoc -y
+  - sudo ldconfig
+  - cd ..
+  - git clone https://github.com/irungentoo/toxcore.git
+  - cd toxcore && autoreconf -if && ./configure && make && sudo make install
+  - echo '/usr/local/lib/' | sudo tee -a /etc/ld.so.conf.d/locallib.conf
+  - sudo ldconfig
+  - sudo add-apt-repository --yes ppa:hansjorg/rust
+  - sudo add-apt-repository --yes ppa:cmrx64/cargo
+  - sudo apt-get update -qq
+install:
+  - sudo apt-get install -qq rust-nightly cargo
