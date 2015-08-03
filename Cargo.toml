@@ -1,6 +1,6 @@
 [package]
 name = "lee"
-version = "0.0.5"
+version = "0.0.6"
 authors = ["zetok"]
 
 
@@ -10,7 +10,8 @@ git = "https://github.com/suhr/rstox.git"
 
 
 [dependencies.markov]
-markov = "0.0.29"
+git = "https://github.com/aatxe/markov.git"
+rev = "e1a856cb6f186190a50af3b9f7dcb7fcd4d822ad"
 
 [dependencies.chrono]
 chrono = "0.2"

@@ -41,6 +41,10 @@ extern crate rand;
 use rand::ThreadRng;
 use rand::Rng;
 
+/*
+    Needed for checking hashes of received messages
+*/
+use std::hash::{Hash, Hasher, SipHasher};
 
 /*
     Lee's own stuff
@@ -57,7 +61,16 @@ mod for_files;
 */
 //#[derive(Debug)]   // can't be used, since `rand` doesn't want to cooperate
 struct Bot {
+    /**
+        Markov chain of strings received from groupchat, friends and
+        fed from file.
+    */
     markov: Chain<String>,
+
+    /**
+        Vector with hashes of received messages.
+    */
+    hashes: Vec<u64>,
 
     /**
         Time since last save.
@@ -121,6 +134,37 @@ struct Bot {
     random: ThreadRng,
 }
 
+
+impl Bot {
+    /**
+        Check whether hash of a string exists.
+
+        If it does, return early `None`.
+
+        If it doesn't, add it to existing ones and return string.
+    */
+    fn check_hash(&mut self, message: String) -> Option<String> {
+        let mut hasher = SipHasher::default();
+        message.hash(&mut hasher);
+        let hashed = hasher.finish();
+        for h in &self.hashes {
+            if h == &hashed {
+                return None;
+            }
+        }
+        self.hashes.push(hashed);
+        Some(message)
+    }
+
+    /**
+        Add string to markov chain if wasn't already added
+    */
+    fn add_to_markov(&mut self, message: &str) {
+        if let Some(msg) = self.check_hash(message.to_string()) {
+            self.markov.feed_str(&msg);
+        }
+    }
+}
 
 
 // TODO: load it from config file, if not available, then use default one
@@ -210,7 +254,7 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
         Feeding Lee with what it threw up may not be a good idea after all..
     */
     if pubkey != bot.pk {
-        bot.markov.feed_str(&msg);
+        bot.add_to_markov(&msg);
     }
 
 
@@ -315,8 +359,9 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 Feeding Lee with what it threw up may not be a good idea after
                 all..
             */
+
             if pubkey != bot.pk && pname != "Layer" {
-                bot.markov.feed_str(&msg);
+                bot.add_to_markov(&msg);
             }
 
 
@@ -432,6 +477,7 @@ fn main() {
     */
     let mut bot = Bot {
         markov: make_chain(),
+        hashes: vec![],
         last_save: UTC::now().timestamp(),
         pk: tox.get_public_key(),
         last_group: 0,
