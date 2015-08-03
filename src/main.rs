@@ -150,7 +150,7 @@ fn make_chain() -> Chain<String> {
     match Chain::load_utf8("markov.json") {
         Ok(data) => data,
         Err(e) => {
-            println!("Error loading `markov.json`: {}", e);
+            println!("{}: Error loading `markov.json`: {}", UTC::now(), e);
             let mut chain = Chain::for_strings();
             for_files::feed_markov(&mut chain);
             chain
@@ -167,7 +167,8 @@ fn make_chain() -> Chain<String> {
 // TODO: make it configurable to accept all / only selected FRs
 fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     drop(tox.add_friend_norequest(&fpk));
-    println!("Friend {} with friend message {:?} was added.", fpk, msg);
+    println!("{}: Friend {} with friend message {:?} was added.",
+            UTC::now(), fpk, msg);
 }
 
 
@@ -194,12 +195,13 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
     */
     if &msg == "invite" {
         drop(tox.invite_friend(fnum as i32, bot.last_group));
-        println!("Sent invitation to friend {} to groupchat {}",
-            fnum, bot.last_group);
+        println!("{}: Sent invitation to friend {} to groupchat {}",
+            UTC::now(), fnum, bot.last_group);
         return;
     }
 
-    println!("nEvent: FriendMessage:\nFriend {} sent message: {}", pubkey, &msg);
+    println!("{}: Event: FriendMessage:\nFriend {} sent message: {}",
+            UTC::now(), pubkey, &msg);
 
     /*
         feed Lee with message content, but only if peer PK doesn't match
@@ -215,7 +217,7 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
     /*
         Send "about" message
     */
-    if msg == ".about" {
+    if msg == ".about" || msg == ".help" {
         let message = format!(
 "Lee is libre software, licensed under GPLv3+.
 
@@ -226,10 +228,12 @@ Many thanks to all the people who helped in making it.
 
 For more info, visit: https://github.com/zetok/Lee");
         drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+        println!("{}: Sent \"About\" message to friend {}", UTC::now(), fnum);
     } else {
         let message = bot.markov.generate_str();
         println!("Answer: {}", &message);
         drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+        println!("{}: Sent random message to friend {}", UTC::now(), fnum);
     }
 }
 
@@ -246,10 +250,12 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
     match kind {
         GroupchatType::Text => {
             drop(tox.join_groupchat(fid, &data));
-            println!("Accepted invite to text groupchat by {}.", fid);
+            println!("{}: Accepted invite to text groupchat by {}.",
+                    UTC::now(), fid);
         },
         GroupchatType::Av => {
-            println!("Declined invite to audio groupchat by {}.", fid);
+            println!("{}: Declined invite to audio groupchat by {}.",
+                    UTC::now(), fid);
         },
     }
 }
@@ -325,8 +331,8 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 trigger_response(&msg, bot);
             }
 
-            println!("Event: GroupMessage({}, {}, {:?}), Name: {:?}, PK: {}",
-                gnum, pnum, msg, pname, pubkey);
+            println!("{}: Event: GroupMessage({}, {}, {:?}), Name: {:?}, PK: {}",
+                    UTC::now(), gnum, pnum, msg, pname, pubkey);
         },
 
         None => {
@@ -334,8 +340,8 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 trigger_response(&msg, bot);
             }
 
-            println!("Event: GroupMessage({}, {}, {:?}), Name: •not known•, PK: {}",
-                gnum, pnum, msg, pubkey);
+            println!("{}: Event: GroupMessage({}, {}, {:?}), Name: •not known•, PK: {}",
+                    UTC::now(), gnum, pnum, msg, pubkey);
         },
     }
 
@@ -359,7 +365,7 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     /*
         Send "about" message
     */
-    if msg == ".about" {
+    if msg == ".about" || msg == ".help" {
         let message = format!(
 "Lee is libre software, licensed under GPLv3+.
 
@@ -385,15 +391,17 @@ For more info, visit: https://github.com/zetok/Lee");
 fn on_group_namelist_change(tox: &mut Tox, gnum: i32, pnum: i32,
                             change: ChatChange) {
     if let ChatChange::PeerDel = change {
-        println!("Event: Groupchat {}, Peer {} left.", gnum, pnum);
+        println!("{}: Event: Groupchat {}, Peer {} left.",
+                UTC::now(), gnum, pnum);
         if let Some(peers) = tox.group_number_peers(gnum) {
             if peers == 1 {
                 drop(tox.del_groupchat(gnum));
-                println!("Left empty group {}.", gnum);
+                println!("{}: Left empty group {}.", UTC::now(), gnum);
             }
         }
     } else {
-        println!("Event: Groupchat {}, Peer {}: {:?}", gnum, pnum, change);
+        println!("{}: Event: Groupchat {}, Peer {}: {:?}",
+                UTC::now(), gnum, pnum, change);
     }
 }
 
@@ -404,9 +412,12 @@ fn main() {
         new Tox instance.
     */
     let data = match for_files::load_save("lee.tox") {
-        Ok(d) => Some(d),
+        Ok(d) => {
+            println!("{}: Savefile `lee.tox` loaded.", UTC::now());
+            Some(d)
+        },
         Err(e) => {
-            println!("Error loading save: {}", e);
+            println!("{}: Error loading save: {}", UTC::now(), e);
             None
         },
     };
@@ -471,7 +482,7 @@ fn main() {
                     on_group_namelist_change(&mut tox, gnum, pnum, change);
                 },
 
-                ev => { println!("Event: {:?}", ev); },
+                ev => { println!("{}: Event: {:?}", UTC::now(), ev); },
             }
         }
 
@@ -518,11 +529,12 @@ fn main() {
         let cur_time = UTC::now().timestamp();
         if bot.last_save + 64 < cur_time {
             match for_files::write_save("lee.tox", tox.save()) {
-                Ok(_) => println!("File saved."),
-                Err(e) => println!("\nFailed to save file: {}", e),
+                Ok(_) => println!("{}: File saved.", UTC::now()),
+                Err(e) => println!("\n{}: Failed to save file: {}",
+                                UTC::now(), e),
             }
             drop(bot.markov.save_utf8("markov.json"));
-            println!("Saved `markov.json`");
+            println!("{}: Saved `markov.json`", UTC::now());
             bot.last_save = cur_time;
         }
 
