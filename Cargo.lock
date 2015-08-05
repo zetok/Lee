@@ -1,6 +1,6 @@
 [root]
 name = "lee"
-version = "0.0.6"
+version = "0.0.7"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "markov 0.0.29 (git+https://github.com/aatxe/markov.git?rev=e1a856cb6f186190a50af3b9f7dcb7fcd4d822ad)",
@@ -71,7 +71,7 @@ dependencies = [
 [[package]]
 name = "rstox"
 version = "0.0.1"
-source = "git+https://github.com/suhr/rstox.git#c151100c2335e39e6919198f5b9195d98e2455b6"
+source = "git+https://github.com/suhr/rstox.git#218c8bf86410f456a8b1b672f539af548eed0946"
 dependencies = [
  "libc 0.1.8 (registry+https://github.com/rust-lang/crates.io-index)",
 ]

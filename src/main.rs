@@ -555,7 +555,7 @@ fn main() {
             let cur_time = UTC::now().timestamp();
             if  (bot.last_time + 10) < cur_time {
                 /* Should have only small chance to speak */
-                if 0.0161 > bot.random.gen::<f64>() {
+                if 0.013 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
                     drop(tox.group_message_send(bot.last_group, &message));
                 }
