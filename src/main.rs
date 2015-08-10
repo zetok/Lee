@@ -171,9 +171,6 @@ impl Bot {
 //         * perhaps it could be made of some random chars generated
 //           at runtime?
 static BOT_NAME: &'static str = "Lee";
-// TODO: make use of some fancy functions to not have that ↓ mess
-static BOT_NAMES: &'static [&'static str] = &["Lee", "lee", "LEE",
-                                        "LEe", "LeE", "lEE", "leE"];
 static BOT_STATUS_MSG: &'static str =
         "Send me a message 'invite' to get into the groupchat";
 
@@ -329,24 +326,19 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
         Triggers Lee
     */
     fn trigger_response(msg: &String, bot: &mut Bot) {
-        // TODO: find out whether there isn't some more efficient way of
-        //       doing this
-        for name in BOT_NAMES {
-            if msg.contains(name) {
-                bot.trigger = true;
-                /*
-                    ↓ waiting time for response should be random, for more
-                    human-like feel, and should be at least 2s long – too
-                    quick answer isn't too good either.
+        // check whether name is mentioned — convert message to lowercase and
+        // then look for lowercase name of bot in message
+        if msg.to_lowercase().contains(&BOT_NAME.to_lowercase()) {
+            bot.trigger = true;
+            /*
+                ↓ waiting time for response should be random, for more
+                human-like feel, and should be at least 2s long – too
+                quick answer isn't too good either.
 
-                    Currently waiting time should be between 1 and 5s.
-                */
-                let random_wait = 1.0 + 4.0 * bot.random.gen::<f64>();
-                bot.trigger_time = random_wait as i64 + UTC::now().timestamp();
-
-                // don't loop unnecessarily – 1 occurence of a name is enough
-                break;
-            }
+                Currently waiting time should be between 1 and 5s.
+            */
+            let random_wait = 1.0 + 4.0 * bot.random.gen::<f64>();
+            bot.trigger_time = random_wait as i64 + UTC::now().timestamp();
         }
     }
 
