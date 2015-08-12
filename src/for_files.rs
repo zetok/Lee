@@ -34,14 +34,22 @@ use markov::Chain;
 /*
     Function to read file and return vector of strings, each of them
     corresponding to a line from a file.
+
+    In a case where there is no file, return early.
 */
-fn vec_strings(file: &str) -> Vec<String> {
-    let mut file: File = File::open(file).unwrap();
+fn vec_strings(file: &str) -> Result<Vec<String>, ()> {
+    let mut file = match File::open(file) {
+        Ok(f) => f,
+        Err(e) => {
+            println!("Error opening {}: {}", file, e);
+            return Err(())
+        },
+    };
 
     let mut content = String::new();
     file.read_to_string(&mut content).unwrap();
 
-    content.lines().map(|l| l.to_string()).collect()
+    Ok(content.lines().map(|l| l.to_string()).collect())
 }
 
 /**
@@ -49,13 +57,13 @@ fn vec_strings(file: &str) -> Vec<String> {
 */
 pub fn feed_markov(chain: &mut Chain<String>) {
     /*
-        let iteration begin
+        Get vector of strings from the file `markov.txt`. In a case where
+        there is no file supplied, return early without feeding chain.
     */
-    // TODO: currently textfile is hardcoded, should be changed to made it
-    //       try to use setting first, and then fallback on hardcoded.
-    //       In a case where there would be no config & file, markove should
-    //       be fed with an empty string.
-    let vec_of_strings: Vec<String> = vec_strings("markov.txt");
+    let vec_of_strings: Vec<String> = match vec_strings("markov.txt") {
+        Ok(v) => v,
+        Err(_) => return,
+    };
 
     /*
         Initialize string to feed markov
