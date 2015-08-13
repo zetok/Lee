@@ -1,6 +1,6 @@
 [root]
 name = "lee"
-version = "0.0.10"
+version = "0.0.11"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "markov 0.0.29 (git+https://github.com/aatxe/markov.git?rev=e1a856cb6f186190a50af3b9f7dcb7fcd4d822ad)",

@@ -62,6 +62,23 @@ mod for_files;
 //#[derive(Debug)]   // can't be used, since `rand` doesn't want to cooperate
 struct Bot {
     /**
+        Tox struct.
+    */
+    tox: Tox,
+
+    /**
+        Bot name.
+    */
+    // TODO: load from config file
+    name: String,
+
+    /**
+        Bot status message.
+    */
+    // TODO: load from config file
+    status_msg: String,
+
+    /**
         Markov chain of strings received from groupchat, friends and
         fed from file.
     */
@@ -76,11 +93,6 @@ struct Bot {
         Time since last save.
     */
     last_save: i64,
-
-    /**
-        Lee's own public key
-    */
-    pk: PublicKey,
 
     /**
         Last group from which message of any kind was received.
@@ -137,6 +149,32 @@ struct Bot {
 
 impl Bot {
     /**
+        Create new `Bot` struct.
+
+        Takes data for toxcore's instance to load.
+    */
+    fn new(data: Option<Vec<u8>>) -> Bot {
+        Bot {
+            tox: Tox::new(ToxOptions::new(), data.as_ref()
+                                            .map(|x| &**x)).unwrap(),
+
+            name: "Lee".to_string(),
+            status_msg: "Send me a message 'invite' to get into the groupchat"
+                        .to_string(),
+
+            markov: for_files::make_chain("markov.json"),
+            hashes: vec![],
+            last_save: UTC::now().timestamp(),
+            last_group: 0,
+            last_time: UTC::now().timestamp(),
+            speak: true,
+            trigger: false,
+            trigger_time: UTC::now().timestamp(),
+            random: rand::thread_rng(),
+        }
+    }
+
+    /**
         Check whether hash of a string exists.
 
         If it does, return early `None`.
@@ -166,13 +204,6 @@ impl Bot {
     }
 }
 
-
-// TODO: load it from config file, if not available, then use default one
-//         * perhaps it could be made of some random chars generated
-//           at runtime?
-static BOT_NAME: &'static str = "Lee";
-static BOT_STATUS_MSG: &'static str =
-        "Send me a message 'invite' to get into the groupchat";
 
 
 /*
@@ -205,10 +236,10 @@ fn on_friend_request(tox: &mut Tox, fpk: PublicKey, msg: String) {
     The only **exception** is inviting friends to last groupchat in which
     someone spoke in - in this case Lee should return early.
 */
-fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
-    let pubkey = match tox.get_friend_public_key(fnum) {
+fn on_friend_message(bot: &mut Bot, fnum: u32, msg: String) {
+    let pubkey = match bot.tox.get_friend_public_key(fnum) {
         Some(pkey) => pkey,
-        None       => bot.pk,
+        None       => bot.tox.get_public_key(),
     };
 
     /*
@@ -218,7 +249,7 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
         TODO: make it possible to print to stdout friend's name when inviting
     */
     if &msg == "invite" {
-        drop(tox.invite_friend(fnum as i32, bot.last_group));
+        drop(bot.tox.invite_friend(fnum as i32, bot.last_group));
         println!("{}: Sent invitation to friend {} to groupchat {}",
             UTC::now(), fnum, bot.last_group);
         return;
@@ -233,7 +264,7 @@ fn on_friend_message(tox: &mut Tox, fnum: u32, msg: String, bot: &mut Bot) {
 
         Feeding Lee with what it threw up may not be a good idea after all..
     */
-    if pubkey != bot.pk {
+    if pubkey != bot.tox.get_public_key() {
         bot.add_to_markov(&msg);
     }
 
@@ -251,12 +282,12 @@ Made by Zetok\0.
 Many thanks to all the people who helped in making it.
 
 For more info, visit: https://github.com/zetok/Lee");
-        drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+        drop(bot.tox.send_friend_message(fnum, MessageType::Normal, &message));
         println!("{}: Sent \"About\" message to friend {}", UTC::now(), fnum);
     } else {
         let message = bot.markov.generate_str();
         println!("Answer: {}", &message);
-        drop(tox.send_friend_message(fnum, MessageType::Normal, &message));
+        drop(bot.tox.send_friend_message(fnum, MessageType::Normal, &message));
         println!("{}: Sent random message to friend {}", UTC::now(), fnum);
     }
 }
@@ -288,16 +319,16 @@ fn on_group_invite(tox: &mut Tox, fid: i32, kind: GroupchatType, data: Vec<u8>) 
 /*
     Function to deal with group messages
 */
-fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut Bot) {
+fn on_group_message(bot: &mut Bot, gnum: i32, pnum: i32, msg: String) {
     /*
         Get PK of the peer who sent message
 
         In case where toxcore doesn't feel like providing it, use own PK,
         to avoid triggering false alarm
     */
-    let pubkey = match tox.group_peer_pubkey(gnum, pnum) {
+    let pubkey = match bot.tox.group_peer_pubkey(gnum, pnum) {
         Some(pkey) => pkey,
-        None       => bot.pk,
+        None       => bot.tox.get_public_key(),
     };
 
 
@@ -311,7 +342,7 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     fn trigger_response(msg: &String, bot: &mut Bot) {
         // check whether name is mentioned — convert message to lowercase and
         // then look for lowercase name of bot in message
-        if msg.to_lowercase().contains(&BOT_NAME.to_lowercase()) {
+        if msg.to_lowercase().contains(&bot.name.to_lowercase()) {
             bot.trigger = true;
             /*
                 ↓ waiting time for response should be random, for more
@@ -325,7 +356,7 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
         }
     }
 
-    match tox.group_peername(gnum, pnum) {
+    match bot.tox.group_peername(gnum, pnum) {
         Some(pname) => {
             /*
                 feed Lee with message content, but only if peer PK doesn't match
@@ -335,19 +366,18 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
                 all..
             */
 
-            if pubkey != bot.pk && pname != "Layer" {
+            if pubkey != bot.tox.get_public_key() {
                 bot.add_to_markov(&msg);
             }
 
-
             if FAKE_NAMES.contains(&&*pname) {
-                if pubkey != bot.pk {
-                    drop(tox.group_message_send(gnum, "↑ an impostor!"));
+                if pubkey != bot.tox.get_public_key() {
+                    drop(bot.tox.group_message_send(gnum, "↑ an impostor!"));
                 }
             }
 
 
-            if pubkey != bot.pk {
+            if pubkey != bot.tox.get_public_key() {
                 trigger_response(&msg, bot);
             }
 
@@ -356,7 +386,7 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
         },
 
         None => {
-            if pubkey != bot.pk {
+            if pubkey != bot.tox.get_public_key() {
                 trigger_response(&msg, bot);
             }
 
@@ -377,9 +407,9 @@ fn on_group_message(tox: &mut Tox, gnum: i32, pnum: i32, msg: String, bot: &mut 
     /*
         Allow anyone to get Lee's ID
     */
-    if msg == ".id" && pubkey != bot.pk {
-        let message = format!("My ID: {}", tox.get_address());
-        drop(tox.group_message_send(gnum, &message));
+    if msg == ".id" && pubkey != bot.tox.get_public_key() {
+        let message = format!("My ID: {}", bot.tox.get_address());
+        drop(bot.tox.group_message_send(gnum, &message));
     }
 
     /*
@@ -393,7 +423,7 @@ Made by Zetok\0.
 Many thanks to all the people who helped in making it.
 
 For more info, visit: https://github.com/zetok/Lee");
-        drop(tox.group_message_send(gnum, &message));
+        drop(bot.tox.group_message_send(gnum, &message));
     }
 }
 
@@ -441,27 +471,14 @@ fn main() {
             None
         },
     };
-    let mut tox = Tox::new(ToxOptions::new(), data.as_ref()
-                                            .map(|x| &**x)).unwrap();
-
-    drop(tox.set_name(BOT_NAME));
-    drop(tox.set_status_message(BOT_STATUS_MSG));
 
     /*
         Bot stuff
     */
-    let mut bot = Bot {
-        markov: for_files::make_chain("markov.json"),
-        hashes: vec![],
-        last_save: UTC::now().timestamp(),
-        pk: tox.get_public_key(),
-        last_group: 0,
-        last_time: UTC::now().timestamp(),
-        speak: true,
-        trigger: false,
-        trigger_time: UTC::now().timestamp(),
-        random: rand::thread_rng(),
-    };
+    let mut bot = Bot::new(data);
+
+    drop(bot.tox.set_name(&bot.name));
+    drop(bot.tox.set_status_message(&bot.status_msg));
 
 
     /*
@@ -475,32 +492,32 @@ fn main() {
         //       tried for presence of file named `bootstrap.txt`, only if it
         //       is missing fall back on hardcoded nodes
     */
-    bootstrap::bootstrap_hardcoded(&mut tox);
+    bootstrap::bootstrap_hardcoded(&mut bot.tox);
 
-    println!("\nMy ID: {}", tox.get_address());
-    println!("My name: {:?}", tox.get_name());
+    println!("\nMy ID: {}", bot.tox.get_address());
+    println!("My name: {:?}", bot.tox.get_name());
 
     loop {
-        for ev in tox.iter() {
+        for ev in bot.tox.iter() {
             match ev {
                 FriendRequest(fpk, msg) => {
-                    on_friend_request(&mut tox, fpk, msg);
+                    on_friend_request(&mut bot.tox, fpk, msg);
                 },
 
                 FriendMessage(fnum, _, msg) => {
-                    on_friend_message(&mut tox, fnum, msg, &mut bot);
+                    on_friend_message(&mut bot, fnum, msg);
                 },
 
                 GroupInvite(fid, kind, data) => {
-                    on_group_invite(&mut tox, fid, kind, data);
+                    on_group_invite(&mut bot.tox, fid, kind, data);
                 },
 
                 GroupMessage(gnum, pnum, msg) => {
-                    on_group_message(&mut tox, gnum, pnum, msg, &mut bot);
+                    on_group_message(&mut bot, gnum, pnum, msg);
                 },
 
                 GroupNamelistChange(gnum, pnum, change) => {
-                    on_group_namelist_change(&mut tox, gnum, pnum, change);
+                    on_group_namelist_change(&mut bot.tox, gnum, pnum, change);
                 },
 
                 ev => { println!("{}: Event: {:?}", UTC::now(), ev); },
@@ -516,7 +533,7 @@ fn main() {
             let cur_time = UTC::now().timestamp();
             if cur_time >= bot.trigger_time {
                 let message = bot.markov.generate_str();
-                drop(tox.group_message_send(bot.last_group, &message));
+                drop(bot.tox.group_message_send(bot.last_group, &message));
                 bot.trigger = false;
             }
         }
@@ -532,7 +549,7 @@ fn main() {
                 /* Should have only small chance to speak */
                 if 0.013 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
-                    drop(tox.group_message_send(bot.last_group, &message));
+                    drop(bot.tox.group_message_send(bot.last_group, &message));
                 }
 
                 bot.last_time = cur_time;
@@ -549,7 +566,7 @@ fn main() {
         */
         let cur_time = UTC::now().timestamp();
         if bot.last_save + 64 < cur_time {
-            match for_files::write_save("lee.tox", tox.save()) {
+            match for_files::write_save("lee.tox", bot.tox.save()) {
                 Ok(_) => println!("{}: File saved.", UTC::now()),
                 Err(e) => println!("\n{}: Failed to save file: {}",
                                 UTC::now(), e),
@@ -560,6 +577,6 @@ fn main() {
         }
 
 
-        tox.wait();
+        bot.tox.wait();
     }
 }
