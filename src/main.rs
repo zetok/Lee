@@ -182,23 +182,6 @@ static BOT_STATUS_MSG: &'static str =
 const FAKE_NAMES: &'static [&'static str] = &["Lee", "Lee\0"];
 
 
-/*
-    Function to make chain - either load it from `.json` file, or, if
-    that will fail for some reason, make an empty chain and feed it with
-    contents of a file.
-*/
-fn make_chain() -> Chain<String> {
-    match Chain::load_utf8("markov.json") {
-        Ok(data) => data,
-        Err(e) => {
-            println!("{}: Error loading `markov.json`: {}", UTC::now(), e);
-            let mut chain = Chain::for_strings();
-            for_files::feed_markov(&mut chain);
-            chain
-        },
-    }
-}
-
 
 /*
     Function to deal with incoming friend requests
@@ -468,7 +451,7 @@ fn main() {
         Bot stuff
     */
     let mut bot = Bot {
-        markov: make_chain(),
+        markov: for_files::make_chain("markov.json"),
         hashes: vec![],
         last_save: UTC::now().timestamp(),
         pk: tox.get_public_key(),

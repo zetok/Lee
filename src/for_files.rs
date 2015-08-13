@@ -53,7 +53,9 @@ fn vec_strings(file: &str) -> Result<Vec<String>, ()> {
 }
 
 /**
-    Feed markov chain with strings from a file
+    Feed markov chain with strings from a file.
+
+    In a case where file can't be used, an empty chain will be returned.
 */
 pub fn feed_markov(chain: &mut Chain<String>) {
     /*
@@ -100,6 +102,24 @@ pub fn feed_markov(chain: &mut Chain<String>) {
     }
 }
 
+
+/**
+    Function to make chain - either load it from a file, or, if that will
+    fail for some reason, make an empty chain and feed it with contents of
+    plaintext file.
+*/
+pub fn make_chain(file: &str) -> Chain<String> {
+    match Chain::load_utf8(file) {
+        Ok(data) => data,
+        Err(e) => {
+            println!("Error loading `{}`: {}", file, e);
+            let mut chain = Chain::for_strings();
+            // try to feed it from a plaintext file
+            feed_markov(&mut chain);
+            chain
+        },
+    }
+}
 
 
 /**
