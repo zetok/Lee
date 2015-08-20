@@ -281,7 +281,7 @@ Uses Supreme Tox technology.
 Made by Zetok\0.
 Many thanks to all the people who helped in making it.
 
-For more info, visit: https://github.com/zetok/Lee");
+For more info, visit: https://gitlab.com/zetok/Lee");
         drop(bot.tox.send_friend_message(fnum, MessageType::Normal, &message));
         println!("{}: Sent \"About\" message to friend {}", UTC::now(), fnum);
     } else {
