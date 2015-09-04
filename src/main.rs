@@ -202,6 +202,29 @@ impl Bot {
             self.markov.feed_str(&msg);
         }
     }
+
+
+    /**
+        Control status message.
+
+        Takes an `Option<String>` as an argument, in a case where it's
+        `None`, default status message is being used, otherwise status message
+        is being changed to the new one, supplied `String`.
+    */
+    fn status_message(&mut self, message: Option<String>) {
+        match message {
+            Some(m) => {
+                drop(self.tox.set_status_message(&m));
+                println!("{}: Status message set to: \"{}\"",
+                         UTC::now(), m);
+            },
+            None => {
+                drop(self.tox.set_status_message("Send me a message 'invite' to get into the groupchat"));
+                println!("{}: Status message set to default one",
+                         UTC::now());
+            },
+        }
+    }
 }
 
 
@@ -396,12 +419,21 @@ fn on_group_message(bot: &mut Bot, gnum: i32, pnum: i32, msg: String) {
     }
 
     /*
-        Allow anyone to turn speaking on / off
+        Allow anyone to turn speaking `on / off`, and if switch is changed,
+        alter status message accordingly.
     */
     if msg == ".stahp" {
-        bot.speak = false;
+        if bot.speak == true {
+            bot.speak = false;
+            let new_status = format!("{} | groupchat talk: off",
+                                     bot.tox.get_status_message());
+            bot.status_message(Some(new_status));
+        }
     } else if msg == ".talk" {
-        bot.speak = true;
+        if bot.speak == false {
+            bot.speak = true;
+            bot.status_message(None);
+        }
     }
 
     /*
@@ -547,7 +579,7 @@ fn main() {
             let cur_time = UTC::now().timestamp();
             if  (bot.last_time + 10) < cur_time {
                 /* Should have only small chance to speak */
-                if 0.013 > bot.random.gen::<f64>() {
+                if 0.01 > bot.random.gen::<f64>() {
                     let message = bot.markov.generate_str();
                     drop(bot.tox.group_message_send(bot.last_group, &message));
                 }
