@@ -73,12 +73,6 @@ struct Bot {
     name: String,
 
     /**
-        Bot status message.
-    */
-    // TODO: load from config file
-    status_msg: String,
-
-    /**
         Markov chain of strings received from groupchat, friends and
         fed from file.
     */
@@ -159,9 +153,6 @@ impl Bot {
                                             .map(|x| &**x)).unwrap(),
 
             name: "Lee".to_string(),
-            status_msg: "Send me a message 'invite' to get into the groupchat"
-                        .to_string(),
-
             markov: for_files::make_chain("markov.json"),
             hashes: vec![],
             last_save: UTC::now().timestamp(),
@@ -510,7 +501,7 @@ fn main() {
     let mut bot = Bot::new(data);
 
     drop(bot.tox.set_name(&bot.name));
-    drop(bot.tox.set_status_message(&bot.status_msg));
+    bot.status_message(None);
 
 
     /*
