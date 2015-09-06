@@ -418,11 +418,13 @@ fn on_group_message(bot: &mut Bot, gnum: i32, pnum: i32, msg: String) {
             bot.speak = false;
             let new_status = format!("{} | groupchat talk: off",
                                      bot.tox.get_status_message());
+            bot.tox.set_status(UserStatus::Away);
             bot.status_message(Some(new_status));
         }
     } else if msg == ".talk" {
         if bot.speak == false {
             bot.speak = true;
+            bot.tox.set_status(UserStatus::None);
             bot.status_message(None);
         }
     }
