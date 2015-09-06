@@ -147,7 +147,7 @@ impl Bot {
 
         Takes data for toxcore's instance to load.
     */
-    fn new(data: Option<Vec<u8>>) -> Bot {
+    fn new(data: Option<Vec<u8>>) -> Self {
         Bot {
             tox: Tox::new(ToxOptions::new(), data.as_ref()
                                             .map(|x| &**x)).unwrap(),
@@ -486,17 +486,10 @@ fn main() {
         Try to load data file, if not possible, print an error and generate
         new Tox instance.
     */
-    let data = match for_files::load_save("lee.tox") {
-        Ok(d) => {
-            println!("{}: Savefile `lee.tox` loaded.", UTC::now());
-            Some(d)
-        },
-        Err(e) => {
-            println!("{}: Error loading save: {}", UTC::now(), e);
-            None
-        },
-    };
-
+    let data = for_files::load_save("lee.tox")
+                .map_err(|e| println!("\n{}: Error loading save: {}\n",
+                                      UTC::now(), e))
+                .ok();
     /*
         Bot stuff
     */
