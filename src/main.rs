@@ -37,6 +37,13 @@ use markov::Chain;
 extern crate chrono;
 use chrono::UTC;
 
+/*
+ * For regex purposes
+*/
+extern crate regex;
+use regex::Regex;
+
+
 extern crate rand;
 use rand::ThreadRng;
 use rand::Rng;
@@ -413,7 +420,10 @@ fn on_group_message(bot: &mut Bot, gnum: i32, pnum: i32, msg: String) {
         Allow anyone to turn speaking `on / off`, and if switch is changed,
         alter status message accordingly.
     */
-    if msg == ".stahp" {
+
+    let re = Regex::new(r"^(\[[a-zA-Z0-9\|_^`]*\])?\s?\.stahp").unwrap();
+
+    if re.is_match(&msg) {
         if bot.speak == true {
             bot.speak = false;
             let new_status = format!("{} | groupchat talk: off",

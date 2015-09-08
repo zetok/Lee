@@ -1,10 +1,11 @@
 [root]
 name = "lee"
-version = "0.0.13"
+version = "0.0.14"
 dependencies = [
  "chrono 0.2.15 (registry+https://github.com/rust-lang/crates.io-index)",
  "markov 0.0.29 (git+https://github.com/aatxe/markov.git?rev=e1a856cb6f186190a50af3b9f7dcb7fcd4d822ad)",
  "rand 0.3.11 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex 0.1.41 (registry+https://github.com/rust-lang/crates.io-index)",
  "rstox 0.0.1 (git+https://github.com/suhr/rstox.git)",
 ]
 
@@ -15,6 +16,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "winapi 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi-build 0.1.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "aho-corasick"
+version = "0.3.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "memchr 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -50,6 +59,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "memchr"
+version = "0.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
 name = "num"
 version = "0.1.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -67,6 +84,21 @@ dependencies = [
  "libc 0.1.10 (registry+https://github.com/rust-lang/crates.io-index)",
  "winapi 0.2.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
+
+[[package]]
+name = "regex"
+version = "0.1.41"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+dependencies = [
+ "aho-corasick 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "memchr 0.1.6 (registry+https://github.com/rust-lang/crates.io-index)",
+ "regex-syntax 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+]
+
+[[package]]
+name = "regex-syntax"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "rstox"
